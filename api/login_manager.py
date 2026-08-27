@@ -1,4 +1,12 @@
 import os
 from flask_bcrypt import Bcrypt
+from main import app
 from flask import Flask, render_template
-from flask_login import login_manager, login_required,  
+from flask_login import login_manager, login_required, current_user
+
+
+
+# ------------------------------ Frontend ------------------------------ #
+@app.route("/")
+def login():
+    return render_template("login.html")

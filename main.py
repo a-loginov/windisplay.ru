@@ -9,7 +9,7 @@ app.permanent_session_lifetime = timedelta(days=365)
 
 
 from api.login_manager import *
-from api.tv import tv
+#from api.tv import tv
 
 
 
