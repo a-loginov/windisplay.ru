@@ -11,6 +11,7 @@ app.permanent_session_lifetime = timedelta(days=365)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+import db_manager
 from api.login_manager import *
 #from api.tv import tv
 
