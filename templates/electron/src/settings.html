@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Winter.дисплей — Настройки</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .panel { max-width: 460px; }
+
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .info-row span:first-child {
+            color: var(--ink-soft);
+        }
+
+        .info-row span:last-child {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <section class="panel">
+        <div class="panel__head">
+            <img class="mark" src="../assets/favicon.png" alt="Winter.дисплей">
+            <h1>Настройки экрана</h1>
+            <p>Ctrl+Shift+S — вернуться к плееру</p>
+        </div>
+
+        <div class="info-list">
+            <div class="info-row">
+                <span>Устройство</span>
+                <span id="deviceName">—</span>
+            </div>
+            <div class="info-row">
+                <span>Статус</span>
+                <span id="pairStatus" class="status status--online"><span class="status__dot"></span>Подключено</span>
+            </div>
+            <div class="info-row">
+                <span>Кэш на диске</span>
+                <span id="cacheInfo">—</span>
+            </div>
+        </div>
+
+        <label class="field">
+            <span class="field__label">Адрес сервера</span>
+            <input type="text" id="serverUrl" placeholder="https://windisplay.ru">
+        </label>
+        <button class="btn btn--ghost" id="saveServer">Сохранить адрес сервера</button>
+
+        <hr class="divider">
+
+        <div class="row">
+            <button class="btn btn--ghost" id="clearCache">Очистить кэш</button>
+            <button class="btn btn--ghost" id="relaunch">Перезапустить</button>
+        </div>
+
+        <button class="btn btn--danger" id="unpair" style="margin-top: 10px;">Отвязать устройство</button>
+
+        <button class="btn btn--primary" id="back" style="margin-top: 16px;">Назад к плееру</button>
+    </section>
+
+    <script src="settings.js"></script>
+</body>
+</html>

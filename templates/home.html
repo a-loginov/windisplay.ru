@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter.дисплей: Главная</title>
+    <link rel="icon" href="/static/favicon.png">
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --danger: #d33;
+            --sidebar-w: 260px;
+            --sidebar-w-collapsed: 84px;
+            --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+            --dur-md: 320ms;
+            --dur-sm: 170ms;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        svg { color: inherit; }
+
+        /* ---------- shared primitives ---------- */
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: transform 0.12s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .btn svg { width: 16px; height: 16px; }
+        .btn:active { transform: scale(0.97); }
+        .btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+
+        .btn--primary { background: #000000; color: #ffffff; }
+        .btn--primary:hover { opacity: 0.88; }
+        .btn--primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .field__label { font-size: 13px; font-weight: 600; }
+
+        .field input {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            width: 100%;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus-visible {
+            border-color: #000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .status--offline { background: #f0f0f0; color: var(--ink-soft); }
+        .status__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        button:focus-visible, a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+
+        /* ---------- app shell ---------- */
+        .app { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            background: #ffffff;
+            border-right: 1px solid var(--line);
+            display: flex;
+            flex-direction: column;
+            padding: 22px 14px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: width var(--dur-md) var(--ease-spring);
+        }
+
+        .sidebar.is-collapsed { width: var(--sidebar-w-collapsed); }
+
+        .sidebar__top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 10px 26px;
+        }
+
+        .sidebar__mark {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            flex-shrink: 0;
+            object-fit: cover;
+            box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.35);
+        }
+
+        .sidebar__brand {
+            font-weight: 700;
+            font-size: 15px;
+            white-space: nowrap;
+            max-width: 160px;
+            overflow: hidden;
+            opacity: 1;
+            transition: max-width var(--dur-md) var(--ease-spring), opacity var(--dur-sm) ease;
+        }
+
+        .sidebar.is-collapsed .sidebar__brand { max-width: 0; opacity: 0; }
+
+        .nav { display: flex; flex-direction: column; gap: 4px; }
+
+        .nav__item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 12px;
+            border: none;
+            background: none;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            text-align: left;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .nav__item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .nav__item span {
+            display: inline-block;
+            max-width: 150px;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: max-width var(--dur-md) var(--ease-spring), opacity var(--dur-sm) ease;
+        }
+
+        .sidebar.is-collapsed .nav__item { justify-content: center; }
+        .sidebar.is-collapsed .nav__item span { max-width: 0; opacity: 0; }
+
+        .nav__item:hover { background: var(--bg); color: var(--ink); }
+        .nav__item.is-active { background: #000000; color: #ffffff; }
+        a.nav__item { text-decoration: none; }
+
+        .sidebar__spacer { flex: 1; }
+
+        .sidebar__toggle {
+            position: absolute;
+            top: 26px;
+            right: -14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+        }
+
+        .sidebar__toggle:hover { background: var(--bg); }
+
+        .sidebar__toggle svg {
+            width: 14px;
+            height: 14px;
+            transition: transform var(--dur-md) var(--ease-spring);
+        }
+
+        .sidebar.is-collapsed .sidebar__toggle svg { transform: rotate(180deg); }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 36px 44px 80px;
+        }
+
+        .topbar { margin-bottom: 26px; }
+        .topbar h1 { font-size: 25px; margin: 0; letter-spacing: -0.01em; }
+
+        .view-stack { position: relative; }
+
+        .view {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: opacity var(--dur-md) var(--ease-spring), transform var(--dur-md) var(--ease-spring);
+        }
+
+        .view.is-active {
+            position: relative;
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* ---------- mobile bottom nav ---------- */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            border-top: 1px solid var(--line);
+            padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+            justify-content: space-around;
+            z-index: 20;
+        }
+
+        .mobile-nav button,
+        .mobile-nav a {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            padding: 6px 16px;
+            border-radius: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .mobile-nav button svg,
+        .mobile-nav a svg { width: 21px; height: 21px; }
+        .mobile-nav button.is-active { color: #000000; }
+
+        @media (max-width: 899px) {
+            .sidebar { display: none; }
+            .main { padding: 22px 18px 92px; }
+            .mobile-nav { display: flex; }
+        }
+
+        /* ---------- home view ---------- */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-card__label { font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+        .stat-card__value { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; }
+
+        .quick-actions h2 { font-size: 14px; margin: 0 0 12px; color: var(--ink-soft); font-weight: 700; }
+        .quick-actions__row { display: flex; gap: 14px; flex-wrap: wrap; }
+
+        .action-card {
+            flex: 1 1 240px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            cursor: pointer;
+            text-align: left;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .action-card:hover { border-color: #cfcfcf; transform: translateY(-1px); }
+
+        .action-card__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .action-card__icon svg { width: 20px; height: 20px; }
+        .action-card__text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+        .action-card__text small { color: var(--ink-soft); font-size: 12px; }
+
+        /* ---------- screens view ---------- */
+        .view-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .view-header h2 { margin: 0 0 4px; font-size: 18px; }
+        .view-header p { margin: 0; color: var(--ink-soft); font-size: 13px; }
+
+        .empty-state {
+            border: 1px dashed var(--line);
+            border-radius: var(--radius-lg);
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--ink-soft);
+        }
+
+        .empty-state.is-hidden { display: none; }
+
+        .empty-state__icon {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 14px;
+            border-radius: 14px;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state__icon svg { width: 26px; height: 26px; }
+        .empty-state h3 { margin: 0 0 6px; color: var(--ink); font-size: 16px; }
+        .empty-state p { margin: 0 0 18px; font-size: 13px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .empty-state .btn { margin: 0 auto; }
+
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        .screen-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: opacity var(--dur-md) var(--ease-spring), transform var(--dur-md) var(--ease-spring);
+        }
+
+        .screen-card.is-entering { opacity: 0; transform: translateY(10px) scale(0.98); }
+        .screen-card.is-leaving { opacity: 0; transform: scale(0.92); }
+
+        .screen-card__top { display: flex; align-items: flex-start; justify-content: space-between; }
+
+        .screen-card__icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screen-card__icon svg { width: 18px; height: 18px; }
+
+        .screen-card__delete {
+            border: none;
+            background: none;
+            color: var(--ink-soft);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .screen-card__delete svg { width: 16px; height: 16px; }
+        .screen-card__delete:hover { background: #fff0f0; color: var(--danger); }
+
+        .screen-card h3 { margin: 0; font-size: 15px; }
+        .screen-card__location { margin: -6px 0 2px; font-size: 13px; color: var(--ink-soft); }
+
+        /* ---------- create-screen sheet / modal ---------- */
+        .sheet-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 17, 17, 0.32);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--dur-md) ease;
+        }
+
+        .sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+        .sheet {
+            background: #ffffff;
+            width: 92%;
+            max-width: 440px;
+            max-height: 86vh;
+            overflow-y: auto;
+            border-radius: var(--radius-lg);
+            padding: 26px 26px 24px;
+            box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.35);
+            transform: scale(0.94);
+            opacity: 0;
+            transition: transform var(--dur-md) var(--ease-spring), opacity var(--dur-sm) ease;
+        }
+
+        .sheet-backdrop.is-open .sheet { transform: scale(1); opacity: 1; }
+        .sheet__handle { display: none; }
+
+        .sheet__head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .sheet__head h2 { margin: 0; font-size: 18px; }
+
+        .sheet__close {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--ink-soft);
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .sheet__close:hover { background: #ececec; color: var(--ink); }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 20px; }
+
+        .chip {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .chip:hover { border-color: #cfcfcf; }
+        .chip.is-selected { background: #000000; color: #ffffff; border-color: #000000; }
+
+        #screenForm .btn { width: 100%; }
+
+        @media (max-width: 767px) {
+            .sheet-backdrop { align-items: flex-end; }
+
+            .sheet {
+                width: 100%;
+                max-width: none;
+                border-radius: 24px 24px 0 0;
+                padding-top: 12px;
+                transform: translateY(100%);
+            }
+
+            .sheet-backdrop.is-open .sheet { transform: translateY(0); }
+
+            .sheet__handle {
+                display: block;
+                width: 40px;
+                height: 4px;
+                border-radius: 2px;
+                background: var(--line);
+                margin: 0 auto 16px;
+            }
+        }
+
+        /* ---------- toasts ---------- */
+        .toast-host {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            z-index: 80;
+        }
+
+        @media (max-width: 899px) {
+            .toast-host { bottom: 90px; }
+        }
+
+        .toast {
+            background: #111111;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(10px) scale(0.96);
+            transition: opacity var(--dur-sm) ease, transform var(--dur-md) var(--ease-spring);
+        }
+
+        .toast.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <button class="sidebar__toggle" id="sidebarToggle" aria-label="Свернуть меню">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+            </button>
+
+            <div class="sidebar__top">
+                <img class="sidebar__mark" src="/static/favicon.png" alt="">
+                <span class="sidebar__brand">Winter.дисплей</span>
+            </div>
+
+            <nav class="nav">
+                <button class="nav__item is-active" data-view-btn="home">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+                    <span>Главная</span>
+                </button>
+                <button class="nav__item" data-view-btn="screens">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                    <span>Экраны</span>
+                </button>
+                <a class="nav__item" href="/account">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
+                    <span>Настройки</span>
+                </a>
+            </nav>
+
+            <div class="sidebar__spacer"></div>
+        </aside>
+
+        <main class="main">
+            <header class="topbar">
+                <h1 id="viewTitle">Главная</h1>
+            </header>
+
+            <div class="view-stack">
+                <section class="view is-active" data-view="home">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <span class="stat-card__label">Экранов</span>
+                            <span class="stat-card__value" id="statTotal">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__label">Подключено</span>
+                            <span class="stat-card__value" id="statOnline">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__label">Ожидают подключения</span>
+                            <span class="stat-card__value" id="statPending">0</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h2>Быстрые действия</h2>
+                        <div class="quick-actions__row">
+                            <button class="action-card" id="qaAddScreen">
+                                <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                                <span class="action-card__text"><strong>Добавить экран</strong><small>Подключить новое устройство</small></span>
+                            </button>
+                            <a class="action-card" href="/account">
+                                <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg></span>
+                                <span class="action-card__text"><strong>Настройки аккаунта</strong><small>Профиль, пароль, Yandex ID</small></span>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view" data-view="screens">
+                    <div class="view-header">
+                        <div>
+                            <h2 id="screensCount">0 экранов</h2>
+                            <p>Устройства, привязанные к аккаунту</p>
+                        </div>
+                        <button class="btn btn--primary" id="addScreenBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                            Добавить экран
+                        </button>
+                    </div>
+
+                    <div class="empty-state" id="screensEmpty">
+                        <div class="empty-state__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                        </div>
+                        <h3>Экранов пока нет</h3>
+                        <p>Добавьте первый экран — укажите имя и место, где он будет установлен</p>
+                        <button class="btn btn--primary" id="addScreenEmptyBtn">Добавить экран</button>
+                    </div>
+
+                    <div class="screens-grid" id="screensGrid"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <nav class="mobile-nav">
+        <button class="is-active" data-view-btn="home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+            Главная
+        </button>
+        <button data-view-btn="screens">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+            Экраны
+        </button>
+        <a href="/account">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
+            Настройки
+        </a>
+    </nav>
+
+    <div class="sheet-backdrop" id="sheetBackdrop">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+            <div class="sheet__handle"></div>
+            <div class="sheet__head">
+                <h2 id="sheetTitle">Новый экран</h2>
+                <button type="button" class="sheet__close" id="sheetClose" aria-label="Закрыть">✕</button>
+            </div>
+            <form id="screenForm">
+                <label class="field">
+                    <span class="field__label">Имя экрана</span>
+                    <input type="text" id="screenName" placeholder="Например, Экран у входа" required>
+                </label>
+                <label class="field">
+                    <span class="field__label">Где будет</span>
+                    <input type="text" id="screenLocation" placeholder="Введите или выберите ниже" required>
+                </label>
+                <div class="chips" id="locationChips">
+                    <button type="button" class="chip" data-chip="Ресепшн">Ресепшн</button>
+                    <button type="button" class="chip" data-chip="Зал ожидания">Зал ожидания</button>
+                    <button type="button" class="chip" data-chip="Витрина">Витрина</button>
+                    <button type="button" class="chip" data-chip="Переговорная">Переговорная</button>
+                    <button type="button" class="chip" data-chip="Кафе">Кафе</button>
+                    <button type="button" class="chip" data-chip="Магазин">Магазин</button>
+                    <button type="button" class="chip" data-chip="Офис">Офис</button>
+                    <button type="button" class="chip" data-chip="Лобби">Лобби</button>
+                </div>
+                <button type="submit" class="btn btn--primary" id="submitScreen" disabled>Создать экран</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+    <script>
+        const VIEW_TITLES = { home: "Главная", screens: "Экраны" };
+        let currentView = "home";
+
+        function switchView(name) {
+            if (name === currentView || !VIEW_TITLES[name]) return;
+            document.querySelectorAll(".view").forEach((el) => {
+                el.classList.toggle("is-active", el.dataset.view === name);
+            });
+            document.querySelectorAll("[data-view-btn]").forEach((btn) => {
+                btn.classList.toggle("is-active", btn.dataset.viewBtn === name);
+            });
+            document.getElementById("viewTitle").textContent = VIEW_TITLES[name];
+            currentView = name;
+        }
+
+        document.querySelectorAll("[data-view-btn]").forEach((btn) => {
+            btn.addEventListener("click", () => switchView(btn.dataset.viewBtn));
+        });
+
+        // ---------------- sidebar collapse ----------------
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+
+        function setSidebarCollapsed(collapsed) {
+            sidebar.classList.toggle("is-collapsed", collapsed);
+            sidebarToggle.setAttribute("aria-label", collapsed ? "Развернуть меню" : "Свернуть меню");
+            localStorage.setItem("wd_sidebar_collapsed", collapsed ? "1" : "0");
+        }
+
+        setSidebarCollapsed(localStorage.getItem("wd_sidebar_collapsed") === "1");
+        sidebarToggle.addEventListener("click", () => {
+            setSidebarCollapsed(!sidebar.classList.contains("is-collapsed"));
+        });
+
+        // ---------------- toasts ----------------
+        const toastHost = document.getElementById("toastHost");
+
+        function showToast(text) {
+            const el = document.createElement("div");
+            el.className = "toast";
+            el.textContent = text;
+            toastHost.appendChild(el);
+            requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-visible")));
+            setTimeout(() => {
+                el.classList.remove("is-visible");
+                el.addEventListener("transitionend", () => el.remove(), { once: true });
+            }, 2400);
+        }
+
+        // ---------------- screens ----------------
+        const screensGrid = document.getElementById("screensGrid");
+        const screensEmpty = document.getElementById("screensEmpty");
+        const screensCount = document.getElementById("screensCount");
+        const statTotal = document.getElementById("statTotal");
+        const statOnline = document.getElementById("statOnline");
+        const statPending = document.getElementById("statPending");
+
+        let screens = [];
+        try {
+            screens = JSON.parse(localStorage.getItem("wd_screens") || "[]");
+        } catch {
+            screens = [];
+        }
+
+        function persistScreens() {
+            localStorage.setItem("wd_screens", JSON.stringify(screens));
+        }
+
+        function pluralScreens(n) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return "экран";
+            if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return "экрана";
+            return "экранов";
+        }
+
+        function updateStats() {
+            statTotal.textContent = screens.length;
+            statOnline.textContent = 0;
+            statPending.textContent = screens.length;
+            screensCount.textContent = `${screens.length} ${pluralScreens(screens.length)}`;
+            screensEmpty.classList.toggle("is-hidden", screens.length > 0);
+        }
+
+        function buildScreenCard(screen) {
+            const card = document.createElement("article");
+            card.className = "screen-card is-entering";
+            card.dataset.id = screen.id;
+            card.innerHTML = `
+                <div class="screen-card__top">
+                    <span class="screen-card__icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                    </span>
+                    <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${screen.id}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                    </button>
+                </div>
+                <h3>${screen.name}</h3>
+                <p class="screen-card__location">${screen.location}</p>
+                <span class="status status--offline"><span class="status__dot"></span>Не подключено</span>
+            `;
+            return card;
+        }
+
+        function renderScreens() {
+            screensGrid.innerHTML = "";
+            screens.forEach((screen) => {
+                const card = buildScreenCard(screen);
+                card.classList.remove("is-entering");
+                screensGrid.appendChild(card);
+            });
+            updateStats();
+        }
+
+        function addScreen(name, location) {
+            const screen = { id: Date.now().toString(36), name, location };
+            screens.push(screen);
+            persistScreens();
+
+            const card = buildScreenCard(screen);
+            screensGrid.appendChild(card);
+            requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-entering")));
+
+            updateStats();
+            showToast(`Экран «${name}» создан`);
+        }
+
+        screensGrid.addEventListener("click", (e) => {
+            const btn = e.target.closest("[data-delete]");
+            if (!btn) return;
+            const id = btn.dataset.delete;
+            if (!confirm("Удалить этот экран?")) return;
+
+            const card = btn.closest(".screen-card");
+            card.classList.add("is-leaving");
+            card.addEventListener(
+                "transitionend",
+                () => {
+                    card.remove();
+                    screens = screens.filter((s) => s.id !== id);
+                    persistScreens();
+                    updateStats();
+                },
+                { once: true }
+            );
+            showToast("Экран удалён");
+        });
+
+        renderScreens();
+
+        // ---------------- create-screen sheet ----------------
+        const sheetBackdrop = document.getElementById("sheetBackdrop");
+        const sheetClose = document.getElementById("sheetClose");
+        const screenForm = document.getElementById("screenForm");
+        const screenNameInput = document.getElementById("screenName");
+        const screenLocationInput = document.getElementById("screenLocation");
+        const submitScreenBtn = document.getElementById("submitScreen");
+        const chips = document.querySelectorAll(".chip");
+
+        function updateSubmitState() {
+            submitScreenBtn.disabled = !(screenNameInput.value.trim() && screenLocationInput.value.trim());
+        }
+
+        function syncChipSelection() {
+            chips.forEach((chip) => {
+                chip.classList.toggle("is-selected", chip.dataset.chip === screenLocationInput.value.trim());
+            });
+        }
+
+        chips.forEach((chip) => {
+            chip.addEventListener("click", () => {
+                screenLocationInput.value = chip.dataset.chip;
+                syncChipSelection();
+                updateSubmitState();
+            });
+        });
+
+        screenNameInput.addEventListener("input", updateSubmitState);
+        screenLocationInput.addEventListener("input", () => {
+            syncChipSelection();
+            updateSubmitState();
+        });
+
+        function openSheet() {
+            screenForm.reset();
+            syncChipSelection();
+            updateSubmitState();
+            sheetBackdrop.classList.add("is-open");
+            setTimeout(() => screenNameInput.focus(), 250);
+        }
+
+        function closeSheet() {
+            sheetBackdrop.classList.remove("is-open");
+        }
+
+        document.getElementById("addScreenBtn").addEventListener("click", openSheet);
+        document.getElementById("addScreenEmptyBtn").addEventListener("click", openSheet);
+        document.getElementById("qaAddScreen").addEventListener("click", () => {
+            switchView("screens");
+            openSheet();
+        });
+
+        sheetClose.addEventListener("click", closeSheet);
+        sheetBackdrop.addEventListener("click", (e) => {
+            if (e.target === sheetBackdrop) closeSheet();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && sheetBackdrop.classList.contains("is-open")) closeSheet();
+        });
+
+        screenForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const name = screenNameInput.value.trim();
+            const location = screenLocationInput.value.trim();
+            if (!name || !location) return;
+            addScreen(name, location);
+            closeSheet();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "windisplay-player",
+  "version": "0.1.0",
+  "description": "Windisplay screen client for Windows",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^32.0.0"
+  }
+}

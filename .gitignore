@@ -4,3 +4,6 @@
 .cursor
 .vscode
 .рус
+node_modules
+templates/electron/dist
+.playwright-mcp

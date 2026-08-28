@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Winter.дисплей — Подключение</title>
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        .code {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-align: center;
+            padding: 18px 0;
+            margin: 6px 0 4px;
+            border-radius: var(--radius-md);
+            background: var(--bg);
+            border: 1px solid var(--line);
+        }
+
+        .code--placeholder {
+            color: var(--ink-soft);
+            font-weight: 600;
+            font-size: 16px;
+            letter-spacing: normal;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--line);
+            border-top-color: var(--ink);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .state-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-top: 14px;
+        }
+
+        .error-box {
+            display: none;
+            text-align: center;
+            margin-top: 14px;
+        }
+
+        .error-box p {
+            font-size: 13px;
+            color: var(--danger);
+            margin: 0 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <section class="panel">
+        <div class="panel__head">
+            <img class="mark" src="../assets/favicon.png" alt="Winter.дисплей">
+            <h1>Подключение экрана</h1>
+            <p>Введите код на сайте panel.windisplay.ru, чтобы привязать это устройство к аккаунту</p>
+        </div>
+
+        <div id="code" class="code code--placeholder">Получаем код…</div>
+
+        <div class="state-row" id="waitingRow">
+            <span class="spinner"></span>
+            <span>Ожидаем подключения…</span>
+        </div>
+
+        <div class="error-box" id="errorBox">
+            <p id="errorText">Не удалось связаться с сервером</p>
+            <button class="btn btn--primary" id="retryBtn">Повторить</button>
+        </div>
+
+        <p class="hint">windisplay.ru/pair</p>
+    </section>
+
+    <script src="pairing.js"></script>
+</body>
+</html>
