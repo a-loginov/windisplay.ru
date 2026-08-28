@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter.дисплей: Настройки аккаунта</title>
+    <link rel="icon" href="/static/favicon.png">
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --danger: #d33;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            position: relative;
+        }
+
+        .lava {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            width: 46vmax;
+            height: 46vmax;
+            filter: blur(60px);
+            will-change: transform, border-radius;
+        }
+
+        .blob--dark {
+            left: -14vmax;
+            top: -10vmax;
+            background: #000000;
+            opacity: 0.9;
+            animation: drift-a 22s ease-in-out infinite;
+        }
+
+        .blob--light {
+            right: -16vmax;
+            bottom: -14vmax;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 120px 40px rgba(255, 255, 255, 0.9);
+            animation: drift-b 26s ease-in-out infinite;
+        }
+
+        @keyframes drift-a {
+            0%   { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0, 0) scale(1); }
+            33%  { border-radius: 63% 37% 41% 59% / 55% 63% 37% 45%; transform: translate(3vmax, 4vmax) scale(1.06); }
+            66%  { border-radius: 37% 63% 56% 44% / 33% 52% 48% 67%; transform: translate(-2vmax, 3vmax) scale(0.97); }
+            100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0, 0) scale(1); }
+        }
+
+        @keyframes drift-b {
+            0%   { border-radius: 55% 45% 38% 62% / 47% 40% 60% 53%; transform: translate(0, 0) scale(1); }
+            33%  { border-radius: 40% 60% 62% 38% / 62% 48% 52% 38%; transform: translate(-4vmax, -3vmax) scale(1.05); }
+            66%  { border-radius: 62% 38% 45% 55% / 38% 58% 42% 62%; transform: translate(3vmax, -4vmax) scale(0.96); }
+            100% { border-radius: 55% 45% 38% 62% / 47% 40% 60% 53%; transform: translate(0, 0) scale(1); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 24px 20px 64px;
+        }
+
+        .top-nav {
+            display: flex;
+            margin-bottom: 22px;
+        }
+
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: var(--ink);
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .nav-back:hover { background: var(--bg); border-color: #cfcfcf; }
+        .nav-back svg { width: 18px; height: 18px; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+
+        .avatar-wrap {
+            position: relative;
+            width: 68px;
+            margin: 0 auto 14px;
+        }
+
+        .avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: #000000;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #000000;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--bg);
+            transition: transform 0.12s ease;
+        }
+
+        .avatar-upload:hover { transform: scale(1.08); }
+        .avatar-upload svg { width: 13px; height: 13px; }
+
+        .header h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: -0.01em; }
+        .header p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+        .card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 20px 50px -30px rgba(0, 0, 0, 0.25);
+        }
+
+        .card h2 {
+            font-size: 15px;
+            margin: 0 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card h2 svg { width: 18px; height: 18px; color: var(--ink-soft); }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .info-row:first-child { padding-top: 0; }
+
+        .info-row span:first-child { font-size: 13px; color: var(--ink-soft); }
+        .info-row span:last-child { font-size: 14px; font-weight: 600; }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .status--online { background: #eafbee; color: #1a8a3c; }
+        .status--offline { background: #f0f0f0; color: var(--ink-soft); }
+        .status__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .yandex-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+        .field:last-of-type { margin-bottom: 18px; }
+        .field__label { font-size: 13px; font-weight: 600; }
+
+        .field input {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            width: 100%;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus-visible {
+            border-color: #000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: transform 0.12s ease, opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .btn:active { transform: scale(0.97); }
+        .btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+
+        .btn--primary { background: #000000; color: #ffffff; width: 100%; }
+        .btn--primary:hover { opacity: 0.88; }
+
+        .btn--ghost { background: #ffffff; color: var(--ink); border: 1px solid var(--line); }
+        .btn--ghost:hover { background: #fafafa; border-color: #cfcfcf; }
+
+        .btn--danger { background: #fff0f0; color: var(--danger); border: 1px solid #f6cccc; width: 100%; }
+        .btn--danger:hover { background: #ffe6e6; }
+
+        .card--danger { border-color: rgba(246, 204, 204, 0.8); background: rgba(255, 250, 250, 0.82); }
+        .card--danger p { color: var(--ink-soft); font-size: 13px; margin: 0 0 14px; }
+
+        .toast-host {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            z-index: 80;
+        }
+
+        .toast {
+            background: #111111;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(10px) scale(0.96);
+            transition: opacity 170ms ease, transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lava" aria-hidden="true">
+        <div class="blob blob--dark"></div>
+        <div class="blob blob--light"></div>
+    </div>
+
+    <div class="container">
+        <div class="top-nav">
+            <a href="/home" class="nav-back" aria-label="На главную">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+            </a>
+        </div>
+
+        <div class="header">
+            <div class="avatar-wrap">
+                <div class="avatar" id="avatar">{{ (current_user.full_name[0] if current_user.full_name else "W")|upper }}</div>
+                <label class="avatar-upload" for="avatarInput" aria-label="Изменить фото">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h3l1.5-2h7L17 7h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+                </label>
+                <input type="file" id="avatarInput" accept="image/*" hidden>
+            </div>
+            <h1>{{ current_user.full_name }}</h1>
+            <p>{{ current_user.company }}</p>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+                Профиль
+            </h2>
+            <div class="info-row">
+                <span>ФИО</span>
+                <span>{{ current_user.full_name }}</span>
+            </div>
+            <div class="info-row">
+                <span>Компания</span>
+                <span>{{ current_user.company }}</span>
+            </div>
+            <div class="info-row">
+                <span>Логин</span>
+                <span>{{ current_user.username }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9c0-1.5 1.2-2.5 3-2.5s3 1 3 2.3c0 1.4-1 1.9-2.2 2.6-1 .6-1.3 1.1-1.3 2.1M12 17.2v.1"/></svg>
+                Вход через Yandex ID
+            </h2>
+            <div class="yandex-row">
+                <span class="status status--offline" id="yandexStatus"><span class="status__dot"></span>Не привязан</span>
+                <button class="btn btn--ghost" id="yandexToggle">Привязать</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                Смена пароля
+            </h2>
+            <form id="passwordForm">
+                <label class="field">
+                    <span class="field__label">Текущий пароль</span>
+                    <input type="password" id="currentPassword" required>
+                </label>
+                <label class="field">
+                    <span class="field__label">Новый пароль</span>
+                    <input type="password" id="newPassword" minlength="6" required>
+                </label>
+                <button type="submit" class="btn btn--primary">Обновить пароль</button>
+            </form>
+        </div>
+
+        <div class="card card--danger">
+            <h2>Выход</h2>
+            <p>Завершить сеанс на этом устройстве</p>
+            <a href="/logout" class="btn btn--danger">Выйти из аккаунта</a>
+        </div>
+    </div>
+
+    <div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+    <script>
+        const toastHost = document.getElementById("toastHost");
+
+        function showToast(text) {
+            const el = document.createElement("div");
+            el.className = "toast";
+            el.textContent = text;
+            toastHost.appendChild(el);
+            requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-visible")));
+            setTimeout(() => {
+                el.classList.remove("is-visible");
+                el.addEventListener("transitionend", () => el.remove(), { once: true });
+            }, 2400);
+        }
+
+        const avatar = document.getElementById("avatar");
+        const avatarInput = document.getElementById("avatarInput");
+
+        avatarInput.addEventListener("change", () => {
+            const file = avatarInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                avatar.style.backgroundImage = `url(${reader.result})`;
+                avatar.textContent = "";
+                localStorage.setItem("wd_avatar", reader.result);
+            };
+            reader.readAsDataURL(file);
+            showToast("Фото обновлено");
+        });
+
+        const savedAvatar = localStorage.getItem("wd_avatar");
+        if (savedAvatar) {
+            avatar.style.backgroundImage = `url(${savedAvatar})`;
+            avatar.textContent = "";
+        }
+
+        const yandexStatus = document.getElementById("yandexStatus");
+        const yandexToggle = document.getElementById("yandexToggle");
+        let yandexLinked = localStorage.getItem("wd_yandex_linked") === "1";
+
+        function renderYandexState() {
+            yandexStatus.className = `status ${yandexLinked ? "status--online" : "status--offline"}`;
+            yandexStatus.innerHTML = `<span class="status__dot"></span>${yandexLinked ? "Привязан" : "Не привязан"}`;
+            yandexToggle.textContent = yandexLinked ? "Отвязать" : "Привязать";
+        }
+
+        yandexToggle.addEventListener("click", () => {
+            yandexLinked = !yandexLinked;
+            localStorage.setItem("wd_yandex_linked", yandexLinked ? "1" : "0");
+            renderYandexState();
+            showToast(yandexLinked ? "Yandex ID привязан" : "Yandex ID отвязан");
+        });
+
+        renderYandexState();
+
+        document.getElementById("passwordForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            e.target.reset();
+            showToast("Пароль обновлён");
+        });
+    </script>
+</body>
+</html>

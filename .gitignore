@@ -7,3 +7,4 @@
 node_modules
 templates/electron/dist
 .playwright-mcp
+__pycache__

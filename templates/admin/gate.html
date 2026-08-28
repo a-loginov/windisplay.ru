@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter.дисплей: Админ-панель</title>
+    <link rel="icon" href="/static/favicon.png">
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --danger: #d33;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .lava { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .blob { position: absolute; width: 46vmax; height: 46vmax; filter: blur(60px); }
+        .blob--dark { left: -14vmax; top: -10vmax; background: #000000; opacity: 0.9; animation: drift-a 22s ease-in-out infinite; }
+        .blob--light {
+            right: -16vmax; bottom: -14vmax; background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 120px 40px rgba(255, 255, 255, 0.9);
+            animation: drift-b 26s ease-in-out infinite;
+        }
+
+        @keyframes drift-a {
+            0%, 100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0, 0) scale(1); }
+            50% { border-radius: 63% 37% 41% 59% / 55% 63% 37% 45%; transform: translate(3vmax, 4vmax) scale(1.06); }
+        }
+
+        @keyframes drift-b {
+            0%, 100% { border-radius: 55% 45% 38% 62% / 47% 40% 60% 53%; transform: translate(0, 0) scale(1); }
+            50% { border-radius: 40% 60% 62% 38% / 62% 48% 52% 38%; transform: translate(-4vmax, -3vmax) scale(1.05); }
+        }
+
+        @media (prefers-reduced-motion: reduce) { .blob { animation: none !important; } }
+
+        .stage { position: relative; z-index: 1; width: 100%; padding: 24px; display: flex; justify-content: center; }
+
+        .panel {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.25);
+            padding: 40px 32px 32px;
+        }
+
+        .panel__head { text-align: center; margin-bottom: 22px; }
+
+        .mark {
+            width: 40px; height: 40px; margin: 0 auto 16px; border-radius: 12px;
+            object-fit: cover; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35);
+        }
+
+        .panel__head h1 { font-size: 20px; font-weight: 700; margin: 0 0 6px; letter-spacing: -0.01em; }
+        .panel__head p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+
+        .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .field__label { font-size: 13px; font-weight: 600; }
+
+        .field input {
+            appearance: none; border: 1px solid var(--line); background: #ffffff;
+            border-radius: var(--radius-md); padding: 13px 16px; font-size: 15px;
+            color: var(--ink); outline: none; width: 100%;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input:focus-visible { border-color: #000; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08); }
+
+        .btn {
+            appearance: none; border: none; border-radius: var(--radius-md); padding: 14px 18px;
+            font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+            display: flex; align-items: center; justify-content: center;
+            background: #000000; color: #ffffff;
+            transition: opacity 0.15s ease, transform 0.12s ease;
+        }
+
+        .btn:hover { opacity: 0.88; }
+        .btn:active { transform: scale(0.98); }
+        .btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+
+        .error-text {
+            font-size: 13px; color: var(--danger); background: #fff0f0;
+            border: 1px solid #f6cccc; border-radius: var(--radius-md);
+            padding: 10px 14px; margin: 0 0 16px;
+        }
+
+        .panel__foot { text-align: center; margin: 18px 0 0; font-size: 13px; color: var(--ink-soft); }
+        .panel__foot a { color: var(--ink); font-weight: 600; text-decoration: none; }
+        .panel__foot a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="lava" aria-hidden="true">
+        <div class="blob blob--dark"></div>
+        <div class="blob blob--light"></div>
+    </div>
+
+    <main class="stage">
+        <section class="panel">
+            <div class="panel__head">
+                <img class="mark" src="/static/favicon.png" alt="Winter.дисплей">
+                <h1>Админ-панель</h1>
+                <p>Доступ только для владельца</p>
+            </div>
+
+            {% if error %}
+                <p class="error-text">{{ error }}</p>
+            {% endif %}
+
+            <form method="post">
+                <label class="field">
+                    <span class="field__label">Мастер-пароль</span>
+                    <input type="password" name="master_password" placeholder="Введите мастер-пароль" required autofocus>
+                </label>
+                <button type="submit" class="btn">Войти</button>
+            </form>
+
+            <p class="panel__foot"><a href="/home">Вернуться на главную</a></p>
+        </section>
+    </main>
+</body>
+</html>

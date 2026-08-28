@@ -30,3 +30,14 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # Yandex ID #
 ClientID=os.environ["ClientID"]
 Client_secret=os.environ["Client secret"]
+
+
+
+# --- Timeweb AI (AI-агент) ---
+OPENAI_URL = os.environ["OPENAI_URL"]
+API_KEY = os.environ["API_KEY"]
+
+
+
+# --- Админ-панель ---
+ADMIN_MASTER_PASSWORD = os.environ["ADMIN_MASTER_PASSWORD"]

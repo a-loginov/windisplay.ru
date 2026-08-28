@@ -93,6 +93,9 @@
         .status--offline { background: #f0f0f0; color: var(--ink-soft); }
         .status__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+        .btn--danger { background: #fff0f0; color: var(--danger); border: 1px solid #f6cccc; width: 100%; }
+        .btn--danger:hover { background: #ffe6e6; }
+
         button:focus-visible, a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
 
         /* ---------- app shell ---------- */
@@ -428,6 +431,126 @@
         .screen-card h3 { margin: 0; font-size: 15px; }
         .screen-card__location { margin: -6px 0 2px; font-size: 13px; color: var(--ink-soft); }
 
+        /* ---------- media view ---------- */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .media-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: opacity var(--dur-md) var(--ease-spring), transform var(--dur-md) var(--ease-spring);
+        }
+
+        .media-card.is-entering { opacity: 0; transform: translateY(10px) scale(0.98); }
+        .media-card.is-leaving { opacity: 0; transform: scale(0.92); }
+
+        .media-card__top { display: flex; justify-content: flex-end; }
+
+        .media-card__delete {
+            border: none;
+            background: none;
+            color: var(--ink-soft);
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .media-card__delete svg { width: 15px; height: 15px; }
+        .media-card__delete:hover { background: #fff0f0; color: var(--danger); }
+
+        .media-card__body {
+            appearance: none;
+            border: none;
+            background: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .media-card__thumb {
+            aspect-ratio: 4 / 3;
+            border-radius: 12px;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--ink-soft);
+        }
+
+        .media-card__thumb img,
+        .media-card__thumb video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-card__thumb svg { width: 30px; height: 30px; }
+
+        .media-card__name {
+            font-size: 13px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .media-card__meta { font-size: 12px; color: var(--ink-soft); }
+
+        .media-preview {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background: var(--bg);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-soft);
+            margin-bottom: 18px;
+        }
+
+        .media-preview img,
+        .media-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .media-preview svg { width: 40px; height: 40px; }
+
+        .info-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+        .info-row span:first-child { font-size: 13px; color: var(--ink-soft); }
+        .info-row span:last-child { font-size: 13px; font-weight: 600; text-align: right; }
+
         /* ---------- create-screen sheet / modal ---------- */
         .sheet-backdrop {
             position: fixed;
@@ -588,6 +711,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
                     <span>Экраны</span>
                 </button>
+                <button class="nav__item" data-view-btn="media">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+                    <span>Медиа</span>
+                </button>
                 <a class="nav__item" href="/account">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
                     <span>Настройки</span>
@@ -616,6 +743,10 @@
                         <div class="stat-card">
                             <span class="stat-card__label">Ожидают подключения</span>
                             <span class="stat-card__value" id="statPending">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__label">Медиафайлов</span>
+                            <span class="stat-card__value" id="statMedia">0</span>
                         </div>
                     </div>
 
@@ -657,6 +788,31 @@
 
                     <div class="screens-grid" id="screensGrid"></div>
                 </section>
+
+                <section class="view" data-view="media">
+                    <div class="view-header">
+                        <div>
+                            <h2 id="mediaCount">0 файлов</h2>
+                            <p>Изображения и видео для показа на экранах</p>
+                        </div>
+                        <button class="btn btn--primary" id="uploadMediaBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                            Загрузить файл
+                        </button>
+                        <input type="file" id="mediaInput" accept="image/*,video/*" multiple hidden>
+                    </div>
+
+                    <div class="empty-state" id="mediaEmpty">
+                        <div class="empty-state__icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+                        </div>
+                        <h3>Медиатека пуста</h3>
+                        <p>Загрузите картинки или видео — потом их можно будет назначить на экраны</p>
+                        <button class="btn btn--primary" id="uploadMediaEmptyBtn">Загрузить файл</button>
+                    </div>
+
+                    <div class="media-grid" id="mediaGrid"></div>
+                </section>
             </div>
         </main>
     </div>
@@ -669,6 +825,10 @@
         <button data-view-btn="screens">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
             Экраны
+        </button>
+        <button data-view-btn="media">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+            Медиа
         </button>
         <a href="/account">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
@@ -707,10 +867,44 @@
         </div>
     </div>
 
+    <div class="sheet-backdrop" id="mediaSheetBackdrop">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mediaSheetTitle">
+            <div class="sheet__handle"></div>
+            <div class="sheet__head">
+                <h2 id="mediaSheetTitle">Файл</h2>
+                <button type="button" class="sheet__close" id="mediaSheetClose" aria-label="Закрыть">✕</button>
+            </div>
+
+            <div class="media-preview" id="mediaPreview"></div>
+
+            <div class="info-list">
+                <div class="info-row">
+                    <span>Загрузил</span>
+                    <span id="mediaUploadedBy"></span>
+                </div>
+                <div class="info-row">
+                    <span>Когда</span>
+                    <span id="mediaUploadedAt"></span>
+                </div>
+                <div class="info-row">
+                    <span>Размер</span>
+                    <span id="mediaSize"></span>
+                </div>
+                <div class="info-row">
+                    <span>Тип</span>
+                    <span id="mediaType"></span>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn--danger" id="mediaDeleteBtn">Удалить файл</button>
+        </div>
+    </div>
+
     <div class="toast-host" id="toastHost" aria-live="polite"></div>
 
     <script>
-        const VIEW_TITLES = { home: "Главная", screens: "Экраны" };
+        const CURRENT_USER_NAME = {{ current_user.full_name | tojson }};
+        const VIEW_TITLES = { home: "Главная", screens: "Экраны", media: "Медиа" };
         let currentView = "home";
 
         function switchView(name) {
@@ -927,6 +1121,220 @@
             if (!name || !location) return;
             addScreen(name, location);
             closeSheet();
+        });
+
+        // ---------------- media ----------------
+        const mediaGrid = document.getElementById("mediaGrid");
+        const mediaEmpty = document.getElementById("mediaEmpty");
+        const mediaCount = document.getElementById("mediaCount");
+        const statMedia = document.getElementById("statMedia");
+        const mediaInput = document.getElementById("mediaInput");
+
+        const mediaUrls = new Map();
+        let mediaItems = [];
+        try {
+            mediaItems = JSON.parse(localStorage.getItem("wd_media") || "[]");
+        } catch {
+            mediaItems = [];
+        }
+
+        function persistMedia() {
+            localStorage.setItem("wd_media", JSON.stringify(mediaItems));
+        }
+
+        function pluralFiles(n) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return "файл";
+            if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return "файла";
+            return "файлов";
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return `${bytes} Б`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
+            return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
+        }
+
+        function formatDateTime(iso) {
+            return new Date(iso).toLocaleString("ru-RU", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        }
+
+        const KIND_LABELS = { image: "Изображение", video: "Видео", file: "Файл" };
+
+        function kindIcon(kind) {
+            if (kind === "video") {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none"/></svg>';
+            }
+            if (kind === "image") {
+                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>';
+            }
+            return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/></svg>';
+        }
+
+        function kindFromMime(type) {
+            if (type.startsWith("image/")) return "image";
+            if (type.startsWith("video/")) return "video";
+            return "file";
+        }
+
+        function updateMediaStats() {
+            mediaCount.textContent = `${mediaItems.length} ${pluralFiles(mediaItems.length)}`;
+            statMedia.textContent = mediaItems.length;
+            mediaEmpty.classList.toggle("is-hidden", mediaItems.length > 0);
+        }
+
+        function thumbHtml(item) {
+            const url = mediaUrls.get(item.id);
+            if (url && item.kind === "image") return `<img src="${url}" alt="">`;
+            if (url && item.kind === "video") return `<video src="${url}" muted></video>`;
+            return kindIcon(item.kind);
+        }
+
+        function buildMediaCard(item) {
+            const card = document.createElement("article");
+            card.className = "media-card is-entering";
+            card.dataset.id = item.id;
+            card.innerHTML = `
+                <div class="media-card__top">
+                    <button class="media-card__delete" aria-label="Удалить файл" data-delete-media="${item.id}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                    </button>
+                </div>
+                <button type="button" class="media-card__body" data-open-media="${item.id}">
+                    <span class="media-card__thumb">${thumbHtml(item)}</span>
+                    <span class="media-card__name">${item.name}</span>
+                    <span class="media-card__meta">${formatBytes(item.size)} · ${KIND_LABELS[item.kind]}</span>
+                </button>
+            `;
+            return card;
+        }
+
+        function renderMediaGrid() {
+            mediaGrid.innerHTML = "";
+            mediaItems.forEach((item) => {
+                const card = buildMediaCard(item);
+                card.classList.remove("is-entering");
+                mediaGrid.appendChild(card);
+            });
+            updateMediaStats();
+        }
+
+        function addMediaFiles(files) {
+            Array.from(files).forEach((file) => {
+                const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+                const item = {
+                    id,
+                    name: file.name,
+                    size: file.size,
+                    kind: kindFromMime(file.type),
+                    uploadedBy: CURRENT_USER_NAME || "Вы",
+                    uploadedAt: new Date().toISOString(),
+                };
+                mediaUrls.set(id, URL.createObjectURL(file));
+                mediaItems.push(item);
+
+                const card = buildMediaCard(item);
+                mediaGrid.appendChild(card);
+                requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-entering")));
+            });
+            persistMedia();
+            updateMediaStats();
+            showToast(files.length === 1 ? "Файл загружен" : `Загружено файлов: ${files.length}`);
+        }
+
+        function removeMediaItem(id) {
+            const card = mediaGrid.querySelector(`[data-id="${id}"]`);
+            if (card) {
+                card.classList.add("is-leaving");
+                card.addEventListener("transitionend", () => card.remove(), { once: true });
+            }
+            const url = mediaUrls.get(id);
+            if (url) URL.revokeObjectURL(url);
+            mediaUrls.delete(id);
+            mediaItems = mediaItems.filter((m) => m.id !== id);
+            persistMedia();
+            updateMediaStats();
+            showToast("Файл удалён");
+        }
+
+        document.getElementById("uploadMediaBtn").addEventListener("click", () => mediaInput.click());
+        document.getElementById("uploadMediaEmptyBtn").addEventListener("click", () => mediaInput.click());
+
+        mediaInput.addEventListener("change", () => {
+            if (mediaInput.files.length) addMediaFiles(mediaInput.files);
+            mediaInput.value = "";
+        });
+
+        mediaGrid.addEventListener("click", (e) => {
+            const deleteBtn = e.target.closest("[data-delete-media]");
+            if (deleteBtn) {
+                if (confirm("Удалить этот файл?")) removeMediaItem(deleteBtn.dataset.deleteMedia);
+                return;
+            }
+            const openBtn = e.target.closest("[data-open-media]");
+            if (openBtn) openMediaSheet(openBtn.dataset.openMedia);
+        });
+
+        renderMediaGrid();
+
+        // ---------------- media details popup ----------------
+        const mediaSheetBackdrop = document.getElementById("mediaSheetBackdrop");
+        const mediaSheetClose = document.getElementById("mediaSheetClose");
+        const mediaPreview = document.getElementById("mediaPreview");
+        const mediaUploadedBy = document.getElementById("mediaUploadedBy");
+        const mediaUploadedAt = document.getElementById("mediaUploadedAt");
+        const mediaSize = document.getElementById("mediaSize");
+        const mediaType = document.getElementById("mediaType");
+        const mediaDeleteBtn = document.getElementById("mediaDeleteBtn");
+        let openMediaId = null;
+
+        function openMediaSheet(id) {
+            const item = mediaItems.find((m) => m.id === id);
+            if (!item) return;
+            openMediaId = id;
+
+            const url = mediaUrls.get(id);
+            if (url && item.kind === "image") {
+                mediaPreview.innerHTML = `<img src="${url}" alt="">`;
+            } else if (url && item.kind === "video") {
+                mediaPreview.innerHTML = `<video src="${url}" controls></video>`;
+            } else {
+                mediaPreview.innerHTML = kindIcon(item.kind);
+            }
+
+            mediaUploadedBy.textContent = item.uploadedBy;
+            mediaUploadedAt.textContent = formatDateTime(item.uploadedAt);
+            mediaSize.textContent = formatBytes(item.size);
+            mediaType.textContent = KIND_LABELS[item.kind];
+
+            mediaSheetBackdrop.classList.add("is-open");
+        }
+
+        function closeMediaSheet() {
+            mediaSheetBackdrop.classList.remove("is-open");
+            openMediaId = null;
+        }
+
+        mediaSheetClose.addEventListener("click", closeMediaSheet);
+        mediaSheetBackdrop.addEventListener("click", (e) => {
+            if (e.target === mediaSheetBackdrop) closeMediaSheet();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && mediaSheetBackdrop.classList.contains("is-open")) closeMediaSheet();
+        });
+
+        mediaDeleteBtn.addEventListener("click", () => {
+            if (!openMediaId) return;
+            if (!confirm("Удалить этот файл?")) return;
+            removeMediaItem(openMediaId);
+            closeMediaSheet();
         });
     </script>
 </body>

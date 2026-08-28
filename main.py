@@ -13,6 +13,8 @@ login_manager.init_app(app)
 
 import db_manager
 from api.login_manager import *
+from api.admin import *
+from api.ai_mod import *
 #from api.tv import tv
 
 
