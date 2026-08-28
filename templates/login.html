@@ -3,10 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Winter.дисплей: Вход в аккунт</title>
+    <title>Winter.дисплей: Вход в аккаунт</title>
     <link rel="icon" href="/static/favicon.png">
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --panel: #ffffff;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --yandex-red: #fc3f1d;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ---------- lava layer ---------- */
+        .lava {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            width: 46vmax;
+            height: 46vmax;
+            filter: blur(60px);
+            will-change: transform, border-radius;
+        }
+
+        .blob--dark {
+            left: -14vmax;
+            top: -10vmax;
+            background: #000000;
+            opacity: 0.9;
+            animation: drift-a 22s ease-in-out infinite;
+        }
+
+        .blob--light {
+            right: -16vmax;
+            bottom: -14vmax;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 0 120px 40px rgba(255, 255, 255, 0.9);
+            animation: drift-b 26s ease-in-out infinite;
+        }
+
+        @keyframes drift-a {
+            0%   { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0, 0) scale(1); }
+            33%  { border-radius: 63% 37% 41% 59% / 55% 63% 37% 45%; transform: translate(3vmax, 4vmax) scale(1.06); }
+            66%  { border-radius: 37% 63% 56% 44% / 33% 52% 48% 67%; transform: translate(-2vmax, 3vmax) scale(0.97); }
+            100% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; transform: translate(0, 0) scale(1); }
+        }
+
+        @keyframes drift-b {
+            0%   { border-radius: 55% 45% 38% 62% / 47% 40% 60% 53%; transform: translate(0, 0) scale(1); }
+            33%  { border-radius: 40% 60% 62% 38% / 62% 48% 52% 38%; transform: translate(-4vmax, -3vmax) scale(1.05); }
+            66%  { border-radius: 62% 38% 45% 55% / 38% 58% 42% 62%; transform: translate(3vmax, -4vmax) scale(0.96); }
+            100% { border-radius: 55% 45% 38% 62% / 47% 40% 60% 53%; transform: translate(0, 0) scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .blob { animation: none !important; }
+        }
+
+        /* ---------- panel ---------- */
+        .stage {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .panel {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(22px) saturate(140%);
+            -webkit-backdrop-filter: blur(22px) saturate(140%);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.25);
+            padding: 40px 32px 32px;
+        }
+
+        .panel__head {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .mark {
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.35);
+        }
+
+        .panel__head h1 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .panel__head p {
+            margin: 0;
+            font-size: 14px;
+            color: var(--ink-soft);
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field__label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .field input {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            border-radius: var(--radius-md);
+            padding: 13px 16px;
+            font-size: 15px;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input::placeholder {
+            color: #b3b3b3;
+        }
+
+        .field input:focus-visible {
+            border-color: #000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: transform 0.12s ease, opacity 0.15s ease, background 0.15s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn--primary {
+            background: #000000;
+            color: #ffffff;
+            margin-top: 4px;
+        }
+
+        .btn--primary:hover {
+            opacity: 0.88;
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid #000;
+            outline-offset: 3px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0 16px;
+            color: var(--ink-soft);
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .btn--yandex {
+            background: #ffffff;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .btn--yandex:hover {
+            border-color: #cfcfcf;
+            background: #fafafa;
+        }
+
+        .btn--yandex svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .panel__foot {
+            text-align: center;
+            margin: 22px 0 0;
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        .panel__foot a {
+            color: var(--ink);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .panel__foot a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 420px) {
+            .panel {
+                padding: 32px 22px 26px;
+                border-radius: var(--radius-md);
+            }
+        }
+
+        /* ---------- desktop / large screens ---------- */
+        @media (min-width: 900px) {
+            .stage {
+                padding: 40px;
+            }
+
+            .panel {
+                max-width: 432px;
+                padding: 48px 44px 40px;
+                border-radius: 32px;
+            }
+
+            .mark {
+                width: 52px;
+                height: 52px;
+                margin-bottom: 20px;
+            }
+
+            .panel__head {
+                margin-bottom: 32px;
+            }
+
+            .panel__head h1 {
+                font-size: 25px;
+            }
+
+            .panel__head p {
+                font-size: 15px;
+            }
+
+            .field input,
+            .btn {
+                padding: 15px 18px;
+                font-size: 16px;
+            }
+
+            .blob {
+                width: 38vmax;
+                height: 38vmax;
+            }
+        }
+
+        @media (min-width: 1440px) {
+            .panel {
+                max-width: 460px;
+            }
+
+            .blob {
+                width: 32vmax;
+                height: 32vmax;
+            }
+        }
+    </style>
 </head>
 <body>
-    
+    <div class="lava" aria-hidden="true">
+        <div class="blob blob--dark"></div>
+        <div class="blob blob--light"></div>
+    </div>
+
+    <main class="stage">
+        <section class="panel">
+            <div class="panel__head">
+                <img class="mark" src="/static/favicon.png" alt="Winter.дисплей">
+                <h1>Вход в аккаунт</h1>
+                <p>Введите логин и пароль, чтобы продолжить</p>
+            </div>
+
+            <form class="form" action="/login" method="post">
+                <label class="field">
+                    <span class="field__label">Логин</span>
+                    <input type="text" name="login" placeholder="Введите логин" autocomplete="username" required>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Пароль</span>
+                    <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+                </label>
+
+                <button type="submit" class="btn btn--primary">Войти</button>
+            </form>
+
+            <div class="divider"><span>или</span></div>
+
+            <a href="/auth/yandex" class="btn btn--yandex">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="12" fill="#FC3F1D"/>
+                    <path d="M13.53 6.2h-1.35c-2.4 0-3.9 1.28-3.9 3.24 0 1.65.78 2.58 2.16 3.35l-2.5 4.01h1.87l2.24-3.65h.09v3.65h1.55V6.2h-.16zm-.4 5.66h-.32c-1.15 0-1.86-.55-1.86-2.02 0-1.42.7-2.14 1.9-2.14h.28v4.16z" fill="#ffffff"/>
+                </svg>
+                Войти через Яндекс ID
+            </a>
+
+            <p class="panel__foot">Нет аккаунта? <a href="/create_profile">Создать профиль</a></p>
+        </section>
+    </main>
 </body>
 </html>

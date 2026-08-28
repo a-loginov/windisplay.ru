@@ -25,3 +25,8 @@ POSTGRESQL_DBNAME=os.environ["POSTGRESQL_DBNAME"]
 # --- Секретный ключ Flask ---
 SECRET_KEY = os.environ['SECRET_KEY']
 
+
+
+# Yandex ID #
+ClientID=os.environ["ClientID"]
+Client_secret=os.environ["Client secret"]
