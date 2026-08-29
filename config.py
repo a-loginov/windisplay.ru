@@ -41,3 +41,11 @@ API_KEY = os.environ["API_KEY"]
 
 # --- Админ-панель ---
 ADMIN_MASTER_PASSWORD = os.environ["ADMIN_MASTER_PASSWORD"]
+
+
+# S3 #
+REGUION=os.environ["REGUION"]
+S3_Secret_Access_Key=os.environ["S3_Secret_Access_Key"]
+S3_Access_Key=os.environ["S3_Access_Key"]
+NAME_BAGET=os.environ["NAME_BAGET"]
+S3_URL=os.environ["S3_URL"]

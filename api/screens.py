@@ -1,6 +1,6 @@
 import json
 
-from flask import jsonify, request
+from flask import jsonify, render_template, request, url_for
 from flask_login import login_required, current_user
 
 from app import app
@@ -93,6 +93,39 @@ def screens_create():
 
 
 
+@app.route("/api/screens/<screen_id>", methods=["PATCH"])
+@login_required
+def screens_update(screen_id):
+    device = db.session.get(Device, screen_id)
+    if device is None or device.owner_id != current_user.id:
+        return jsonify({"error": "not_found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    location = (data.get("location") or "").strip()
+    if not name or not location:
+        return jsonify({"error": "fields_required"}), 400
+
+    device.name = name
+    device.location = location
+    db.session.commit()
+    return jsonify(_serialize(device))
+
+
+@app.route("/screen/<screen_id>")
+@login_required
+def screen_view_page(screen_id):
+    device = db.session.get(Device, screen_id)
+    if device is None or device.owner_id != current_user.id or not device.is_virtual:
+        return jsonify({"error": "not_found"}), 404
+    return render_template(
+        "virtual_screen.html",
+        screen_id=device.id,
+        screen_name=device.name,
+        screen_location=device.location,
+    )
+
+
 @app.route("/api/screens/<screen_id>", methods=["DELETE"])
 @login_required
 def screens_delete(screen_id):
@@ -129,6 +162,7 @@ def screens_playlist_get(screen_id):
             "name": media.name,
             "kind": media.kind,
             "duration": row.duration,
+            "src": url_for("media_stream", filename=media.filename, _external=True) if media.filename else None,
         })
     return jsonify({"items": items})
 

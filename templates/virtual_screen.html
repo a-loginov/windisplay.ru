@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Виртуальный экран — {{ screen_name }}</title>
+    <style>
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; height: 100%; background: #0b0d10; color: #e8edf3; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+        #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+        #stage img, #stage video {
+            position: absolute;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #stage img.active, #stage video.active { opacity: 1; }
+
+        #empty {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            color: #9aa4b0;
+            text-align: center;
+            padding: 20px;
+        }
+        #empty h2 { margin: 0; font-size: 18px; color: #e8edf3; }
+        #empty p { margin: 0; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div id="stage"></div>
+
+    <div id="empty">
+        <h2>Плейлист пуст</h2>
+        <p>Добавьте медиа в плейлист этого экрана на панели управления.</p>
+    </div>
+
+    <script>
+        const screenId = {{ screen_id | tojson }};
+        const stage = document.getElementById("stage");
+        const emptyState = document.getElementById("empty");
+
+        let items = [];
+        let currentIds = "";
+        let activeIndex = 0;
+        let advanceTimer = null;
+
+        function buildStage() {
+            stage.innerHTML = "";
+            for (const item of items) {
+                const el = document.createElement(item.kind === "video" ? "video" : "img");
+                el.src = item.src;
+                el.dataset.id = item.mediaId;
+                if (item.kind === "video") {
+                    el.muted = true;
+                    el.playsInline = true;
+                    el.loop = true;
+                }
+                stage.appendChild(el);
+            }
+        }
+
+        function showSlide(index) {
+            const nodes = stage.querySelectorAll("img, video");
+            nodes.forEach((n) => {
+                n.classList.remove("active");
+                if (n.tagName === "VIDEO") n.pause();
+            });
+            const node = nodes[index];
+            if (!node) return;
+            node.classList.add("active");
+            if (node.tagName === "VIDEO") {
+                node.currentTime = 0;
+                node.play().catch(() => {});
+            }
+        }
+
+        function scheduleAdvance() {
+            clearTimeout(advanceTimer);
+            if (items.length === 0) return;
+            const current = items[activeIndex];
+            const duration = (current.duration || 8) * 1000;
+            advanceTimer = setTimeout(() => {
+                activeIndex = (activeIndex + 1) % items.length;
+                showSlide(activeIndex);
+                scheduleAdvance();
+            }, duration);
+        }
+
+        async function refresh() {
+            let result;
+            try {
+                result = await fetch(`/api/screens/${screenId}/playlist`).then((r) => r.json());
+            } catch {
+                return;
+            }
+
+            const nextItems = result.items || [];
+            const nextIds = nextItems.map((i) => i.mediaId).join(",");
+
+            if (nextItems.length === 0) {
+                items = [];
+                stage.innerHTML = "";
+                emptyState.style.display = "flex";
+                clearTimeout(advanceTimer);
+                currentIds = "";
+                return;
+            }
+
+            emptyState.style.display = "none";
+
+            if (nextIds !== currentIds) {
+                items = nextItems;
+                currentIds = nextIds;
+                activeIndex = 0;
+                buildStage();
+                showSlide(activeIndex);
+                scheduleAdvance();
+            }
+        }
+
+        refresh();
+        setInterval(refresh, 45000);
+    </script>
+</body>
+</html>

@@ -1,11 +1,13 @@
 import os
+import mimetypes
 from datetime import timedelta
+from io import BytesIO
 
 from flask import jsonify, request, send_file, url_for
 
 from app import app
 from db_manager import db, Device, PlaylistItem, MediaAsset, new_id, make_pair_code, make_device_token, now
-from storage import media_path
+from api.s3 import s3_key, s3_download
 
 
 CODE_TTL_MINUTES = 5
@@ -115,7 +117,8 @@ def device_heartbeat():
 @app.route("/media/<path:filename>")
 def media_stream(filename):
     name = os.path.basename(filename)
-    path = media_path(name)
-    if not path.is_file():
+    data = s3_download(s3_key(name))
+    if data is None:
         return jsonify({"error": "not_found"}), 404
-    return send_file(path, conditional=True, max_age=0)
+    mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
+    return send_file(BytesIO(data), mimetype=mime, conditional=True, max_age=0)

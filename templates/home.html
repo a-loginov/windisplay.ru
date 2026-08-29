@@ -636,6 +636,26 @@
         .screen-card__delete .material-symbols-outlined { font-size: 16px; }
         .screen-card__delete:hover { background: var(--danger-bg); color: var(--danger); }
 
+        .screen-card__actions { display: flex; align-items: center; gap: 2px; }
+
+        .screen-card__action {
+            border: none;
+            background: none;
+            color: var(--ink-soft);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .screen-card__action .material-symbols-outlined { font-size: 16px; }
+        .screen-card__action:hover { background: var(--bg); color: var(--ink); }
+
         .screen-card__body {
             appearance: none;
             border: none;
@@ -1438,6 +1458,26 @@
         </div>
     </div>
 
+    <div class="sheet-backdrop" id="settingsSheetBackdrop">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsSheetTitle">
+            <div class="sheet__handle"></div>
+            <div class="sheet__head">
+                <h2 id="settingsSheetTitle">Настройки экрана</h2>
+                <button type="button" class="sheet__close" id="settingsSheetClose" aria-label="Закрыть">✕</button>
+            </div>
+            <form id="screenSettingsForm">
+                <label class="field">
+                    <span class="field__label">Имя экрана</span>
+                    <input type="text" id="screenSettingsName" placeholder="Например, Экран у входа" required>
+                </label>
+                <label class="field">
+                    <span class="field__label">Где будет</span>
+                    <input type="text" id="screenSettingsLocation" placeholder="Например, Ресепшн" required>
+                </label>
+                <button type="submit" class="btn btn--primary" id="screenSettingsSave">Сохранить</button>
+            </form>
+        </div>
+    </div>
     <div class="sheet-backdrop" id="inviteSheetBackdrop">
         <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="inviteSheetTitle">
             <div class="sheet__handle"></div>
@@ -1591,9 +1631,15 @@
                     <span class="screen-card__icon">
                         <span class="material-symbols-outlined">tv</span>
                     </span>
-                    <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${esc(screen.screenId)}">
-                        <span class="material-symbols-outlined">delete</span>
-                    </button>
+                    <div class="screen-card__actions">
+                        ${screen.virtual ? `<a class="screen-card__action" href="/screen/${esc(screen.screenId)}" aria-label="Открыть виртуальный экран" title="Открыть виртуальный экран"><span class="material-symbols-outlined">open_in_new</span></a>` : ""}
+                        <button type="button" class="screen-card__action" aria-label="Настройки экрана" title="Настройки" data-settings="${esc(screen.screenId)}">
+                            <span class="material-symbols-outlined">tune</span>
+                        </button>
+                        <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${esc(screen.screenId)}">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                    </div>
                 </div>
                 <button type="button" class="screen-card__body" data-open-playlist="${esc(screen.screenId)}" aria-label="Плейлист экрана «${esc(screen.name)}»">
                     <h3>${esc(screen.name)}</h3>
@@ -1636,8 +1682,67 @@
                     .catch((err) => showToast(err.message));
                 return;
             }
+            const settingsBtn = e.target.closest("[data-settings]");
+            if (settingsBtn) {
+                openSettingsSheet(settingsBtn.dataset.settings);
+                return;
+            }
             const openBtn = e.target.closest("[data-open-playlist]");
             if (openBtn) openPlaylistSheet(openBtn.dataset.openPlaylist);
+        });
+
+        // ---------------- screen settings sheet ----------------
+        const settingsSheetBackdrop = document.getElementById("settingsSheetBackdrop");
+        const settingsSheetClose = document.getElementById("settingsSheetClose");
+        const settingsSheetTitle = document.getElementById("settingsSheetTitle");
+        const screenSettingsForm = document.getElementById("screenSettingsForm");
+        const screenSettingsName = document.getElementById("screenSettingsName");
+        const screenSettingsLocation = document.getElementById("screenSettingsLocation");
+        const screenSettingsSave = document.getElementById("screenSettingsSave");
+        let settingsScreenId = null;
+
+        function openSettingsSheet(id) {
+            const screen = screens.find((s) => s.screenId === id);
+            if (!screen) return;
+            settingsScreenId = id;
+            settingsSheetTitle.textContent = `Настройки экрана · ${screen.name}`;
+            screenSettingsName.value = screen.name;
+            screenSettingsLocation.value = screen.location;
+            settingsSheetBackdrop.classList.add("is-open");
+            setTimeout(() => screenSettingsName.focus(), 250);
+        }
+
+        function closeSettingsSheet() {
+            settingsSheetBackdrop.classList.remove("is-open");
+            settingsScreenId = null;
+            screenSettingsForm.reset();
+        }
+
+        settingsSheetClose.addEventListener("click", closeSettingsSheet);
+        settingsSheetBackdrop.addEventListener("click", (e) => {
+            if (e.target === settingsSheetBackdrop) closeSettingsSheet();
+        });
+
+        screenSettingsForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (!settingsScreenId) return;
+            const name = screenSettingsName.value.trim();
+            const location = screenSettingsLocation.value.trim();
+            if (!name || !location) return;
+            screenSettingsSave.disabled = true;
+            try {
+                await api(`/api/screens/${settingsScreenId}`, {
+                    method: "PATCH",
+                    body: JSON.stringify({ name, location }),
+                });
+                closeSettingsSheet();
+                showToast("Настройки сохранены");
+                await loadScreens();
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                screenSettingsSave.disabled = false;
+            }
         });
 
         // ---------------- create-screen sheet ----------------
@@ -1664,6 +1769,7 @@
             const showCode = mode === "real";
             realDeviceFields.classList.toggle("is-hidden", !showCode);
             virtualInfoHint.classList.toggle("is-hidden", showCode);
+            screenCodeInput.required = showCode;
             updateSubmitState();
         }
 
@@ -1725,6 +1831,7 @@
             if (e.target === sheetBackdrop) closeSheet();
         });
         document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && settingsSheetBackdrop.classList.contains("is-open")) closeSettingsSheet();
             if (e.key === "Escape" && sheetBackdrop.classList.contains("is-open")) closeSheet();
             if (e.key === "Escape" && playlistSheetBackdrop.classList.contains("is-open")) closePlaylistSheet();
             if (e.key === "Escape" && mediaSheetBackdrop.classList.contains("is-open")) closeMediaSheet();
