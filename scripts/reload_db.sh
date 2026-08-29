@@ -79,12 +79,6 @@ main() {
         die "Файл .env не найден: $ENV_FILE. Укажите путь через --env <path>"
     fi
 
-    # Применяем переменные из .env (для DATABASE_URL/Postgres)
-    set -a
-    # shellcheck disable=SC1091
-    source "$ENV_FILE"
-    set +a
-
     if [[ "$DO_INSTALL" -eq 1 && -x "$APP_DIR/venv/bin/pip" ]]; then
         log "Обновляю зависимости Python ..."
         "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
@@ -94,13 +88,22 @@ main() {
         die "venv не найден в $APP_DIR/venv"
     fi
 
+    # Пути передаются в Python, чтобы .env читался через python-dotenv
+    # (source .env в bash небезопасен из-за спецсимволов в значениях).
     log "Запускаю миграцию базы данных ..."
-    APP_DIR="$APP_DIR" "$APP_DIR/venv/bin/python" - <<'EOF'
+    APP_DIR="$APP_DIR" ENV_FILE="$ENV_FILE" "$APP_DIR/venv/bin/python" - <<'EOF'
 import os
 import sys
 
 app_dir = os.environ["APP_DIR"]
+env_file = os.environ["ENV_FILE"]
+if not os.path.isabs(env_file):
+    env_file = os.path.join(app_dir, env_file)
+
 sys.path.insert(0, app_dir)
+
+from dotenv import load_dotenv
+load_dotenv(env_file)
 
 import sqlalchemy as sa
 from sqlalchemy import inspect, text
