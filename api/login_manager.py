@@ -16,6 +16,19 @@ def login():
     return render_template("login.html")
 
 
+@app.route("/login", methods=["POST"])
+def login_post():
+    username = (request.form.get("login") or "").strip()
+    password = request.form.get("password") or ""
+    user = User.query.filter_by(username=username).first() if username else None
+
+    if user is None or not user.check_password(password):
+        return render_template("login.html", error="Неверный логин или пароль")
+
+    login_user(user, remember=True)
+    return redirect(url_for("home"))
+
+
 @app.route("/home")
 @login_required
 def home():

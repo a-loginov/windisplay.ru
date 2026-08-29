@@ -15,7 +15,9 @@ import db_manager
 from api.login_manager import *
 from api.admin import *
 from api.ai_mod import *
-#from api.tv import tv
+from api.tv import *
+from api.screens import *
+from api.media import *
 
 
 

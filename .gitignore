@@ -10,3 +10,5 @@ templates/electron/dist
 __pycache__
 DOCK.md
 .ulpi/design
+.venv
+media/
