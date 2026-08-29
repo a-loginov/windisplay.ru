@@ -3,8 +3,8 @@ import json
 from flask import jsonify, request
 from flask_login import login_required, current_user
 
-from main import app
-from db_manager import db, Device, MediaAsset, PlaylistItem, now, make_device_token, new_id
+from app import app
+from db_manager import db, Device, MediaAsset, PlaylistItem, now, make_device_token
 from api.tv import ONLINE_TIMEOUT_SECONDS
 
 
@@ -18,7 +18,7 @@ def _state(device):
 
 def _serialize(device):
     count = PlaylistItem.query.filter_by(device_id=device.id).count()
-    payload = {
+    return {
         "screenId": device.id,
         "name": device.name,
         "location": device.location,
@@ -28,9 +28,6 @@ def _serialize(device):
         "lastSeenAt": device.last_seen_at.isoformat() + "Z" if device.last_seen_at else None,
         "itemCount": count,
     }
-    if not device.paired and device.pair_code:
-        payload["pairCode"] = device.pair_code
-    return payload
 
 
 @app.route("/api/screens")
@@ -50,70 +47,29 @@ def screens_create():
 
     if not name or not location:
         return jsonify({"error": "fields_required"}), 400
+    if not code:
+        return jsonify({"error": "code_required", "message": "Введите код с экрана устройства"}), 400
 
-    paired = False
-    if code:
-        candidate = Device.query.filter_by(pair_code=code).first()
-        if candidate is None or not candidate.code_valid:
-            return jsonify({"error": "code_invalid", "message": "Код неверный или истёк"}), 409
-        if candidate.paired:
-            return jsonify({"error": "code_used", "message": "Это устройство уже привязано к аккаунту"}), 409
-        device = candidate
-        device.name = name
-        device.location = location
-        device.owner_id = current_user.id
-        device.token = make_device_token()
-        device.paired_at = now()
-        device.pair_code = None
-        device.code_expires_at = None
-        paired = True
-    else:
-        device = Device(
-            id=new_id(),
-            owner_id=current_user.id,
-            name=name,
-            location=location,
-            created_at=now(),
-        )
-
-    db.session.add(device)
-    db.session.commit()
-
-    payload = _serialize(device)
-    payload["paired"] = paired
-    return jsonify(payload), 201
-
-
-@app.route("/api/screens/<screen_id>/pair", methods=["POST"])
-@login_required
-def screens_pair(screen_id):
-    device = db.session.get(Device, screen_id)
-    if device is None or device.owner_id != current_user.id:
-        return jsonify({"error": "not_found"}), 404
-    if device.paired:
-        return jsonify(_serialize(device))
-
-    data = request.get_json(silent=True) or {}
-    code = (data.get("code") or "").strip().upper()
     candidate = Device.query.filter_by(pair_code=code).first()
     if candidate is None or not candidate.code_valid:
         return jsonify({"error": "code_invalid", "message": "Код неверный или истёк"}), 409
     if candidate.paired:
         return jsonify({"error": "code_used", "message": "Это устройство уже привязано к аккаунту"}), 409
 
-    # переносим код-устройство в «окно» экрана
-    device.owner_id = current_user.id
-    device.token = make_device_token()
-    device.paired_at = now()
-    device.pair_code = None
-    device.code_expires_at = None
-    candidate.owner_id = None
-    candidate.token = None
+    candidate.name = name
+    candidate.location = location
+    candidate.owner_id = current_user.id
+    candidate.token = make_device_token()
+    candidate.paired_at = now()
     candidate.pair_code = None
     candidate.code_expires_at = None
+    db.session.add(candidate)
     db.session.commit()
 
-    return jsonify(_serialize(device))
+    payload = _serialize(candidate)
+    payload["paired"] = True
+    return jsonify(payload), 201
+
 
 
 @app.route("/api/screens/<screen_id>", methods=["DELETE"])

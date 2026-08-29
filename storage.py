@@ -2,7 +2,7 @@ import os
 import uuid
 from pathlib import Path
 
-from main import app
+from app import app
 
 MEDIA_DIR = Path(app.root_path) / "media"
 

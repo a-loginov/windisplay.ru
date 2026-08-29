@@ -11,7 +11,8 @@ from flask import jsonify, request, render_template, Response, stream_with_conte
 from flask_login import login_required, current_user
 from sqlalchemy import or_
 from sqlalchemy.orm.attributes import flag_modified
-from main import app, config
+from app import app
+import config
 
 
 # Инцилизация AI_Agent Timeweb #

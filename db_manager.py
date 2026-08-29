@@ -7,7 +7,7 @@ from sqlalchemy import UUID, text
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import UserMixin
-from main import app, config, login_manager
+from app import app, login_manager
 
 
 # Долгие числа/буквы без «нечитаемых» символов (0/O, 1/I/L)
@@ -32,14 +32,19 @@ def now():
 
 
 # Инцилизация БД для работы #
-POSTGRESQL_HOST=os.environ["POSTGRESQL_HOST"]
-POSTGRESQL_PORT=os.environ["POSTGRESQL_PORT"]
-POSTGRESQL_USER=os.environ["POSTGRESQL_USER"]
-POSTGRESQL_PASSWORD=os.environ["POSTGRESQL_PASSWORD"]
-POSTGRESQL_DBNAME=os.environ["POSTGRESQL_DBNAME"]
+# Для локального запуска без Postgres можно задать DATABASE_URL + sqlite:
+#   export DATABASE_URL="sqlite:///db.sqlite"
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    POSTGRESQL_HOST = os.environ["POSTGRESQL_HOST"]
+    POSTGRESQL_PORT = os.environ["POSTGRESQL_PORT"]
+    POSTGRESQL_USER = os.environ["POSTGRESQL_USER"]
+    POSTGRESQL_PASSWORD = os.environ["POSTGRESQL_PASSWORD"]
+    POSTGRESQL_DBNAME = os.environ["POSTGRESQL_DBNAME"]
+    DATABASE_URL = f"postgresql+psycopg2://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DBNAME}"
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://{POSTGRESQL_USER}:{POSTGRESQL_PASSWORD}@{POSTGRESQL_HOST}:{POSTGRESQL_PORT}/{POSTGRESQL_DBNAME}"
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     "pool_pre_ping": True,

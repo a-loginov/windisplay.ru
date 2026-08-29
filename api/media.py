@@ -1,7 +1,7 @@
 from flask import jsonify, request, url_for
 from flask_login import login_required, current_user
 
-from main import app
+from app import app
 from db_manager import db, MediaAsset, PlaylistItem, new_id, now
 from storage import save_file, delete_file
 

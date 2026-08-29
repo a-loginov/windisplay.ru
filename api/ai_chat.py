@@ -1,6 +1,6 @@
 import requests
 import config
-from main import app
+from app import app
 from flask import render_template, request, jsonify
 from flask_login import login_required
 

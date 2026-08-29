@@ -3,7 +3,7 @@ import io
 import functools
 from datetime import date, timedelta
 import config
-from main import app
+from app import app
 from flask import render_template, request, redirect, url_for, session, Response
 from flask_login import login_required, current_user
 from db_manager import db, User

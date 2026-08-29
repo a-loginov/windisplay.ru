@@ -2,7 +2,7 @@ import os
 import secrets
 import requests
 from flask_bcrypt import Bcrypt
-from main import app
+from app import app
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_login import login_required, current_user, login_user, logout_user
 from db_manager import db, User

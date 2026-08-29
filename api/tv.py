@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from flask import jsonify, request, send_file, url_for
 
-from main import app
+from app import app
 from db_manager import db, Device, PlaylistItem, MediaAsset, new_id, make_pair_code, make_device_token, now
 from storage import media_path
 

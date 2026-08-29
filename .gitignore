@@ -12,3 +12,5 @@ DOCK.md
 .ulpi/design
 .venv
 media/
+scripts/
+test_backend.py
