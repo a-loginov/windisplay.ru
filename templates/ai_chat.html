@@ -81,6 +81,7 @@
 
         .nav-back:hover { background: rgba(255, 255, 255, 0.14); }
         .nav-back svg { width: 17px; height: 17px; }
+        .nav-back .material-symbols-outlined { font-size: 17px; }
 
         .top-bar__mark { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
         .top-bar__title { font-size: 15px; font-weight: 700; line-height: 1.2; }
@@ -245,6 +246,7 @@
         .composer__send:active { transform: scale(0.96); }
         .composer__send:disabled { opacity: 0.25; cursor: not-allowed; }
         .composer__send svg { width: 18px; height: 18px; }
+        .composer__send .material-symbols-outlined { font-size: 18px; }
         .composer__send:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
 
         @media (prefers-reduced-motion: reduce) {
@@ -256,7 +258,7 @@
     <div class="layout">
         <header class="top-bar">
             <a href="/admin" class="nav-back" aria-label="В админ-панель">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+                <span class="material-symbols-outlined">arrow_back</span>
             </a>
             <img class="top-bar__mark" src="/static/favicon.png" alt="">
             <div>
@@ -278,7 +280,7 @@
             <div class="composer__inner">
                 <textarea id="composerInput" rows="1" placeholder="Написать Комете…"></textarea>
                 <button class="composer__send" id="sendBtn" aria-label="Отправить" disabled>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    <span class="material-symbols-outlined">send</span>
                 </button>
             </div>
         </div>

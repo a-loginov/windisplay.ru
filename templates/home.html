@@ -272,6 +272,69 @@
 
         .sidebar.is-collapsed .sidebar__brand { max-width: 0; opacity: 0; }
 
+        .sidebar__profile {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 12px;
+            margin: 0 2px 18px;
+        }
+
+        .sidebar__eyebrow {
+            margin: 0 0 10px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            transition: max-height var(--dur-sm) ease, opacity var(--dur-sm) ease, margin var(--dur-sm) ease;
+        }
+
+        .sidebar__profile-row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+        .sidebar__profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar__profile-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            max-width: 150px;
+            overflow: hidden;
+            transition: max-width var(--dur-md) var(--ease-spring), opacity var(--dur-sm) ease;
+        }
+
+        .sidebar__profile-info strong {
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar__profile-info span {
+            font-size: 11.5px;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sidebar.is-collapsed .sidebar__profile { padding: 12px 0; display: flex; justify-content: center; }
+        .sidebar.is-collapsed .sidebar__eyebrow { max-height: 0; opacity: 0; margin: 0; }
+        .sidebar.is-collapsed .sidebar__profile-info { max-width: 0; opacity: 0; }
+
         .nav { display: flex; flex-direction: column; gap: 4px; }
 
         .nav__item {
@@ -294,6 +357,7 @@
         }
 
         .nav__item svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .nav__item .material-symbols-outlined { font-size: 20px; }
 
         .nav__item span {
             display: inline-block;
@@ -331,13 +395,16 @@
 
         .sidebar__toggle:hover { background: var(--bg); }
 
-        .sidebar__toggle svg {
+        .sidebar__toggle svg,
+        .sidebar__toggle .material-symbols-outlined {
             width: 14px;
             height: 14px;
+            font-size: 14px;
             transition: transform var(--dur-md) var(--ease-spring);
         }
 
-        .sidebar.is-collapsed .sidebar__toggle svg { transform: rotate(180deg); }
+        .sidebar.is-collapsed .sidebar__toggle svg,
+        .sidebar.is-collapsed .sidebar__toggle .material-symbols-outlined { transform: rotate(180deg); }
 
         .main {
             flex: 1;
@@ -346,7 +413,9 @@
         }
 
         .topbar { margin-bottom: 26px; }
+        .topbar__eyebrow { margin: 0 0 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
         .topbar h1 { font-size: 25px; margin: 0; letter-spacing: -0.01em; }
+        .topbar__subtitle { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-soft); }
 
         .view-stack { position: relative; }
 
@@ -400,6 +469,8 @@
 
         .mobile-nav button svg,
         .mobile-nav a svg { width: 21px; height: 21px; }
+        .mobile-nav button .material-symbols-outlined,
+        .mobile-nav a .material-symbols-outlined { font-size: 21px; }
         .mobile-nav button.is-active { color: var(--ink); }
 
         @media (max-width: 899px) {
@@ -462,6 +533,7 @@
         }
 
         .action-card__icon svg { width: 20px; height: 20px; }
+        .action-card__icon .material-symbols-outlined { font-size: 20px; }
         .action-card__text strong { display: block; font-size: 14px; margin-bottom: 2px; }
         .action-card__text small { color: var(--ink-soft); font-size: 12px; }
 
@@ -505,6 +577,7 @@
         }
 
         .empty-state__icon svg { width: 26px; height: 26px; }
+        .empty-state__icon .material-symbols-outlined { font-size: 26px; }
         .empty-state h3 { margin: 0 0 6px; color: var(--ink); font-size: 16px; }
         .empty-state p { margin: 0 0 18px; font-size: 13px; max-width: 320px; margin-left: auto; margin-right: auto; }
         .empty-state .btn { margin: 0 auto; }
@@ -543,6 +616,7 @@
         }
 
         .screen-card__icon svg { width: 18px; height: 18px; }
+        .screen-card__icon .material-symbols-outlined { font-size: 18px; }
 
         .screen-card__delete {
             border: none;
@@ -559,6 +633,7 @@
         }
 
         .screen-card__delete svg { width: 16px; height: 16px; }
+        .screen-card__delete .material-symbols-outlined { font-size: 16px; }
         .screen-card__delete:hover { background: var(--danger-bg); color: var(--danger); }
 
         .screen-card__body {
@@ -619,6 +694,7 @@
         }
 
         .media-card__delete svg { width: 15px; height: 15px; }
+        .media-card__delete .material-symbols-outlined { font-size: 15px; }
         .media-card__delete:hover { background: var(--danger-bg); color: var(--danger); }
 
         .media-card__body {
@@ -653,6 +729,7 @@
         }
 
         .media-card__thumb svg { width: 30px; height: 30px; }
+        .media-card__thumb .material-symbols-outlined { font-size: 30px; }
 
         .media-card__name {
             font-size: 13px;
@@ -685,6 +762,7 @@
         }
 
         .media-preview svg { width: 40px; height: 40px; }
+        .media-preview .material-symbols-outlined { font-size: 40px; }
 
         .info-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
 
@@ -927,6 +1005,7 @@
         .playlist-row__thumb img,
         .playlist-row__thumb video { width: 100%; height: 100%; object-fit: cover; }
         .playlist-row__thumb svg { width: 20px; height: 20px; }
+        .playlist-row__thumb .material-symbols-outlined { font-size: 20px; }
 
         .playlist-row__name {
             flex: 1;
@@ -966,6 +1045,7 @@
         }
 
         .playlist-row__remove svg { width: 15px; height: 15px; }
+        .playlist-row__remove .material-symbols-outlined { font-size: 15px; }
         .playlist-row__remove:hover { background: var(--danger-bg); color: var(--danger); }
 
         .playlist-add__label { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
@@ -1047,7 +1127,7 @@
     <div class="app">
         <aside class="sidebar" id="sidebar">
             <button class="sidebar__toggle" id="sidebarToggle" aria-label="Свернуть меню">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6l-6 6 6 6"/></svg>
+                <span class="material-symbols-outlined">chevron_left</span>
             </button>
 
             <div class="sidebar__top">
@@ -1055,25 +1135,36 @@
                 <span class="sidebar__brand">Winter.дисплей</span>
             </div>
 
+            <div class="sidebar__profile">
+                <p class="sidebar__eyebrow">Профиль</p>
+                <div class="sidebar__profile-row">
+                    <span class="sidebar__profile-avatar" id="sidebarAvatar">—</span>
+                    <div class="sidebar__profile-info">
+                        <strong id="sidebarUserName">—</strong>
+                        <span id="sidebarOrgName">—</span>
+                    </div>
+                </div>
+            </div>
+
             <nav class="nav">
                 <button class="nav__item is-active" data-view-btn="home">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+                    <span class="material-symbols-outlined">home</span>
                     <span>Главная</span>
                 </button>
                 <button class="nav__item" data-view-btn="screens">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                    <span class="material-symbols-outlined">tv</span>
                     <span>Экраны</span>
                 </button>
                 <button class="nav__item" data-view-btn="media">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+                    <span class="material-symbols-outlined">image</span>
                     <span>Медиа</span>
                 </button>
                 <button class="nav__item" data-view-btn="org">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/></svg>
+                    <span class="material-symbols-outlined">apartment</span>
                     <span>Организация</span>
                 </button>
                 <a class="nav__item" href="/account">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
+                    <span class="material-symbols-outlined">tune</span>
                     <span>Настройки</span>
                 </a>
             </nav>
@@ -1083,7 +1174,9 @@
 
         <main class="main">
             <header class="topbar">
+                <p class="topbar__eyebrow" id="viewEyebrow">Панель управления</p>
                 <h1 id="viewTitle">Главная</h1>
+                <p class="topbar__subtitle" id="viewSubtitle">Обзор экранов, медиа и организации</p>
             </header>
 
             <div class="view-stack">
@@ -1111,11 +1204,11 @@
                         <h2>Быстрые действия</h2>
                         <div class="quick-actions__row">
                             <button class="action-card" id="qaAddScreen">
-                                <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                                <span class="action-card__icon"><span class="material-symbols-outlined">add</span></span>
                                 <span class="action-card__text"><strong>Добавить экран</strong><small>Привязать устройство по коду</small></span>
                             </button>
                             <a class="action-card" href="/account">
-                                <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg></span>
+                                <span class="action-card__icon"><span class="material-symbols-outlined">tune</span></span>
                                 <span class="action-card__text"><strong>Настройки аккаунта</strong><small>Профиль, пароль, Yandex ID</small></span>
                             </a>
                         </div>
@@ -1129,7 +1222,7 @@
                             <p>Устройства, привязанные к аккаунту</p>
                         </div>
                         <button class="btn btn--primary" id="addScreenBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                            <span class="material-symbols-outlined">add</span>
                             Добавить экран
                         </button>
                     </div>
@@ -1138,7 +1231,7 @@
 
                     <div class="empty-state" id="screensEmpty">
                         <div class="empty-state__icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                            <span class="material-symbols-outlined">tv</span>
                         </div>
                         <h3>Экранов пока нет</h3>
                         <p>Получите код на устройстве и добавьте первый экран</p>
@@ -1155,7 +1248,7 @@
                             <p>Изображения и видео для показа на экранах</p>
                         </div>
                         <button class="btn btn--primary" id="uploadMediaBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                            <span class="material-symbols-outlined">upload</span>
                             Загрузить файл
                         </button>
                         <input type="file" id="mediaInput" accept="image/*,video/*" multiple hidden>
@@ -1163,7 +1256,7 @@
 
                     <div class="empty-state" id="mediaEmpty">
                         <div class="empty-state__icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+                            <span class="material-symbols-outlined">image</span>
                         </div>
                         <h3>Медиатека пуста</h3>
                         <p>Загрузите картинки или видео — потом их можно будет назначить на экраны</p>
@@ -1215,7 +1308,7 @@
                         <div class="org-members" id="orgMembers"></div>
                         <p class="hint org-hint">Роли: <strong>Владелец</strong> управляет организацией, <strong>Администратор</strong> назначает экраны, <strong>Участник</strong> работает с контентом.</p>
                         <button type="button" class="btn btn--primary is-hidden" id="orgInviteBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                            <span class="material-symbols-outlined">person_add</span>
                             Пригласить участника
                         </button>
                     </div>
@@ -1226,23 +1319,23 @@
 
     <nav class="mobile-nav">
         <button class="is-active" data-view-btn="home">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>
+            <span class="material-symbols-outlined">home</span>
             Главная
         </button>
         <button data-view-btn="screens">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+            <span class="material-symbols-outlined">tv</span>
             Экраны
         </button>
         <button data-view-btn="media">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
+            <span class="material-symbols-outlined">image</span>
             Медиа
         </button>
         <button data-view-btn="org">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/></svg>
+            <span class="material-symbols-outlined">apartment</span>
             Организация
         </button>
         <a href="/account">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
+            <span class="material-symbols-outlined">tune</span>
             Настройки
         </a>
     </nav>
@@ -1257,11 +1350,11 @@
             <form id="screenForm">
                 <div class="segment" role="tablist" aria-label="Тип экрана">
                     <button type="button" class="segment__btn is-active" data-screen-mode="real" aria-selected="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                        <span class="material-symbols-outlined">tv</span>
                         Реальный девайс
                     </button>
                     <button type="button" class="segment__btn" data-screen-mode="virtual" aria-selected="false">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="12" rx="2"/><path d="M8 19h8M12 15v4"/><path d="m10 9 4 2-4 2z"/></svg>
+                        <span class="material-symbols-outlined">cast</span>
                         Виртуальный экран
                     </button>
                 </div>
@@ -1358,7 +1451,7 @@
                 <input type="text" id="inviteLinkInput" readonly>
             </div>
             <button type="button" class="btn btn--primary" id="inviteCopyBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                <span class="material-symbols-outlined">content_copy</span>
                 Скопировать ссылку
             </button>
         </div>
@@ -1369,6 +1462,13 @@
     <script>
         const CURRENT_USER_NAME = {{ current_user.full_name | tojson }};
         const VIEW_TITLES = { home: "Главная", screens: "Экраны", media: "Медиа", org: "Организация" };
+        const VIEW_EYEBROWS = { home: "Панель управления", screens: "Устройства", media: "Библиотека", org: "Команда" };
+        const VIEW_SUBTITLES = {
+            home: "Обзор экранов, медиа и организации",
+            screens: "Устройства, привязанные к аккаунту",
+            media: "Изображения и видео для показа на экранах",
+            org: "Компания, участники и роли",
+        };
         let currentView = "home";
 
         function switchView(name) {
@@ -1380,12 +1480,17 @@
                 btn.classList.toggle("is-active", btn.dataset.viewBtn === name);
             });
             document.getElementById("viewTitle").textContent = VIEW_TITLES[name];
+            document.getElementById("viewEyebrow").textContent = VIEW_EYEBROWS[name];
+            document.getElementById("viewSubtitle").textContent = VIEW_SUBTITLES[name];
             currentView = name;
         }
 
         document.querySelectorAll("[data-view-btn]").forEach((btn) => {
             btn.addEventListener("click", () => switchView(btn.dataset.viewBtn));
         });
+
+        document.getElementById("sidebarUserName").textContent = CURRENT_USER_NAME || "—";
+        document.getElementById("sidebarAvatar").textContent = initials(CURRENT_USER_NAME);
 
         // ---------------- sidebar collapse ----------------
         const sidebar = document.getElementById("sidebar");
@@ -1484,10 +1589,10 @@
             card.innerHTML = `
                 <div class="screen-card__top">
                     <span class="screen-card__icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                        <span class="material-symbols-outlined">tv</span>
                     </span>
                     <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${esc(screen.screenId)}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                        <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>
                 <button type="button" class="screen-card__body" data-open-playlist="${esc(screen.screenId)}" aria-label="Плейлист экрана «${esc(screen.name)}»">
@@ -1691,12 +1796,12 @@
 
         function kindIcon(kind) {
             if (kind === "video") {
-                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none"/></svg>';
+                return '<span class="material-symbols-outlined">movie</span>';
             }
             if (kind === "image") {
-                return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>';
+                return '<span class="material-symbols-outlined">image</span>';
             }
-            return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/></svg>';
+            return '<span class="material-symbols-outlined">description</span>';
         }
 
         function updateMediaStats() {
@@ -1718,7 +1823,7 @@
             card.innerHTML = `
                 <div class="media-card__top">
                     <button class="media-card__delete" aria-label="Удалить файл" data-delete-media="${esc(item.id)}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                        <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>
                 <button type="button" class="media-card__body" data-open-media="${esc(item.id)}">
@@ -1882,7 +1987,7 @@
                     <input type="number" min="1" max="600" value="${item.duration || 8}" aria-label="Секунд показа" data-duration="${index}">
                 </span>
                 <button type="button" class="playlist-row__remove" aria-label="Убрать из плейлиста" data-remove-pl="${index}">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                    <span class="material-symbols-outlined">delete</span>
                 </button>`;
             return row;
         }
@@ -2006,6 +2111,7 @@
             const orgName = data.name || "Без названия";
             document.getElementById("orgName").textContent = orgName;
             document.getElementById("orgHeroName").textContent = orgName;
+            document.getElementById("sidebarOrgName").textContent = orgName;
             document.getElementById("orgHeroDesc").textContent = `Вы — ${ORG_ROLE_LABELS[me.role] || "Участник"}`;
             document.getElementById("orgMark").textContent = initials(orgName);
             document.getElementById("orgMyRole").innerHTML = roleBadge(me.role);
