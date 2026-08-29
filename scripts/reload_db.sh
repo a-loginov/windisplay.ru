@@ -19,13 +19,16 @@
 #   --restart             перезапустить сервис windisplay (по умолчанию выключен)
 #   --env <path>          путь к файлу .env (по умолчанию $APP_DIR/.env)
 #   --env-file <path>     то же самое, что --env
-#   --app-dir <path>      корень проекта с venv и кодом (по умолчанию рядом со скриптом)
+#   --app-dir <path>      корень проекта с кодом (по умолчанию рядом со скриптом)
+#   --venv <path>         путь к папке виртуального окружения (по умолчанию $APP_DIR/venv)
+#   --venv-dir <path>     то же самое, что --venv
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
 APP_SERVICE="windisplay"
+VENV_DIR="$APP_DIR/venv"
 
 DO_INSTALL=1
 DO_RESTART=0
@@ -34,21 +37,19 @@ ENV_FILE=""
 parse_args() {
     local prev=""
     for arg in "$@"; do
-        if [[ "$prev" == "--env" || "$prev" == "--env-file" ]]; then
-            ENV_FILE="$arg"
-            prev=""
-            continue
-        fi
-        if [[ "$prev" == "--app-dir" ]]; then
-            APP_DIR="$arg"
-            prev=""
-            continue
-        fi
+        case "$prev" in
+            --env|--env-file)
+                ENV_FILE="$arg"; prev=""; continue ;;
+            --app-dir)
+                APP_DIR="$arg"; prev=""; continue ;;
+            --venv|--venv-dir)
+                VENV_DIR="$arg"; prev=""; continue ;;
+        esac
         case "$arg" in
             --no-install) DO_INSTALL=0 ;;
             --restart)    DO_RESTART=1 ;;
             --no-restart) DO_RESTART=0 ;;
-            --env|--env-file|--app-dir) prev="${arg}" ;;
+            --env|--env-file|--app-dir|--venv|--venv-dir) prev="${arg}" ;;
             *) echo "Неизвестный флаг: $arg"; exit 1 ;;
         esac
     done
@@ -79,19 +80,19 @@ main() {
         die "Файл .env не найден: $ENV_FILE. Укажите путь через --env <path>"
     fi
 
-    if [[ "$DO_INSTALL" -eq 1 && -x "$APP_DIR/venv/bin/pip" ]]; then
+    if [[ "$DO_INSTALL" -eq 1 && -x "$VENV_DIR/bin/pip" ]]; then
         log "Обновляю зависимости Python ..."
-        "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
+        "$VENV_DIR/bin/pip" install -r "$APP_DIR/requirements.txt"
     fi
 
-    if [[ ! -x "$APP_DIR/venv/bin/python" ]]; then
-        die "venv не найден в $APP_DIR/venv"
+    if [[ ! -x "$VENV_DIR/bin/python" ]]; then
+        die "venv не найден в $VENV_DIR"
     fi
 
     # Пути передаются в Python, чтобы .env читался через python-dotenv
     # (source .env в bash небезопасен из-за спецсимволов в значениях).
     log "Запускаю миграцию базы данных ..."
-    APP_DIR="$APP_DIR" ENV_FILE="$ENV_FILE" "$APP_DIR/venv/bin/python" - <<'EOF'
+    APP_DIR="$APP_DIR" ENV_FILE="$ENV_FILE" "$VENV_DIR/bin/python" - <<'EOF'
 import os
 import sys
 
