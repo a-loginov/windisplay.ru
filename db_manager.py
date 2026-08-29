@@ -30,6 +30,10 @@ def make_invite_token():
     return secrets.token_urlsafe(24)
 
 
+def make_qr_token():
+    return secrets.token_urlsafe(32)
+
+
 def now():
     return datetime.utcnow()
 
@@ -65,6 +69,7 @@ class User(db.Model, UserMixin):
     full_name = db.Column(db.String(120), nullable=False)
     company = db.Column(db.String(120), nullable=False)
     role = db.Column(db.String(20), default="member", nullable=False)  # owner | admin | member
+    is_test = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def set_password(self, password):
@@ -91,6 +96,66 @@ class OrgInvite(db.Model):
     @property
     def valid(self):
         return self.expires_at is None or self.expires_at > now()
+
+
+class WebAuthnCredential(db.Model):
+    __tablename__ = "webauthn_credentials"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    credential_id = db.Column(db.LargeBinary, unique=True, nullable=False)
+    public_key = db.Column(db.LargeBinary, nullable=False)
+    sign_count = db.Column(db.Integer, default=0, nullable=False)
+    device_name = db.Column(db.String(120), default="")
+    created_at = db.Column(db.DateTime, default=now, nullable=False)
+    last_used_at = db.Column(db.DateTime, nullable=True)
+
+
+class QrLoginSession(db.Model):
+    __tablename__ = "qr_login_sessions"
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    status = db.Column(db.String(16), default="pending", nullable=False)  # pending | confirmed | claimed
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_at = db.Column(db.DateTime, default=now, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+
+    @property
+    def valid(self):
+        return self.expires_at > now()
+
+
+class ProjectSetting(db.Model):
+    __tablename__ = "project_settings"
+    key = db.Column(db.String(64), primary_key=True)
+    value = db.Column(db.String(255), nullable=True)
+
+
+def get_setting(key, default=None):
+    row = ProjectSetting.query.get(key)
+    return row.value if row is not None else default
+
+
+def set_setting(key, value):
+    row = ProjectSetting.query.get(key)
+    if row is None:
+        row = ProjectSetting(key=key, value=value)
+        db.session.add(row)
+    else:
+        row.value = value
+    db.session.commit()
+
+
+def get_bool_setting(key, default=False):
+    value = get_setting(key, "1" if default else "0")
+    return value == "1"
+
+
+class DailySummary(db.Model):
+    __tablename__ = "daily_summaries"
+    id = db.Column(db.Integer, primary_key=True)
+    day = db.Column(db.Date, unique=True, nullable=False, index=True)
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=now, nullable=False)
 
 
 class MediaAsset(db.Model):

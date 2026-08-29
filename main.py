@@ -9,6 +9,8 @@ from api.tv import *
 from api.screens import *
 from api.media import *
 from api.org import *
+from api.webauthn_mod import *
+from api.qr_login import *
 
 
 if __name__ == "__main__":

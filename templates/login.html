@@ -273,6 +273,79 @@
             text-decoration: underline;
         }
 
+        .hint {
+            font-size: 12px;
+            color: var(--ink-soft);
+            line-height: 1.5;
+            text-align: center;
+            margin: 0;
+        }
+
+        .method-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .method-tabs__btn {
+            appearance: none;
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-radius: calc(var(--radius-md) - 4px);
+            padding: 9px 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--ink-soft);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .method-tabs__btn .material-symbols-outlined { font-size: 16px; }
+
+        .method-tabs__btn.is-active {
+            background: var(--panel);
+            color: var(--ink);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .method-panel { display: none; }
+        .method-panel.is-active { display: flex; flex-direction: column; gap: 14px; }
+
+        .qr-frame {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .qr-frame img { width: 100%; height: 100%; object-fit: contain; }
+
+        .qr-frame .material-symbols-outlined { font-size: 32px; color: var(--ink-soft); }
+
+        .btn--outline {
+            background: #ffffff;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .btn--outline:hover { border-color: #cfcfcf; background: #fafafa; }
+
         @media (max-width: 420px) {
             .panel {
                 padding: 32px 22px 26px;
@@ -348,19 +421,48 @@
                 <p>Введите логин и пароль, чтобы продолжить</p>
             </div>
 
-            <form class="form" action="/login" method="post">
-                <label class="field">
-                    <span class="field__label">Логин</span>
-                    <input type="text" name="login" placeholder="Введите логин" autocomplete="username" required>
-                </label>
+            <div class="method-tabs" role="tablist" aria-label="Способ входа">
+                <button type="button" class="method-tabs__btn is-active" data-method-tab="password" aria-selected="true">
+                    <span class="material-symbols-outlined">key</span>Пароль
+                </button>
+                <button type="button" class="method-tabs__btn" data-method-tab="qr" aria-selected="false">
+                    <span class="material-symbols-outlined">qr_code_2</span>QR-код
+                </button>
+                <button type="button" class="method-tabs__btn" data-method-tab="faceid" aria-selected="false">
+                    <span class="material-symbols-outlined">fingerprint</span>Face ID
+                </button>
+            </div>
 
-                <label class="field">
-                    <span class="field__label">Пароль</span>
-                    <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
-                </label>
+            <div class="method-panel is-active" id="methodPassword">
+                <form class="form" action="/login" method="post">
+                    <label class="field">
+                        <span class="field__label">Логин</span>
+                        <input type="text" name="login" placeholder="Введите логин" autocomplete="username" required>
+                    </label>
 
-                <button type="submit" class="btn btn--primary">Войти</button>
-            </form>
+                    <label class="field">
+                        <span class="field__label">Пароль</span>
+                        <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+                    </label>
+
+                    <button type="submit" class="btn btn--primary">Войти</button>
+                </form>
+            </div>
+
+            <div class="method-panel" id="methodQr">
+                <div class="qr-frame" id="qrFrame">
+                    <span class="material-symbols-outlined">progress_activity</span>
+                </div>
+                <p class="hint" id="qrHint">Откройте камеру на телефоне, где вы уже вошли в аккаунт, и наведите на код</p>
+            </div>
+
+            <div class="method-panel" id="methodFaceid">
+                <button type="button" class="btn btn--primary" id="faceIdBtn">
+                    <span class="material-symbols-outlined">fingerprint</span>
+                    Войти по Face ID / Touch ID
+                </button>
+                <p class="hint" id="faceIdHint">Устройство должно быть заранее добавлено в настройках аккаунта</p>
+            </div>
 
             <div class="divider"><span>или</span></div>
 
@@ -375,5 +477,151 @@
             <p class="panel__foot">Нет аккаунта? <a href="/create_profile">Создать профиль</a></p>
         </section>
     </main>
+
+    <script>
+        // ---------------- method tabs ----------------
+        const methodTabs = document.querySelectorAll("[data-method-tab]");
+        const methodPanels = {
+            password: document.getElementById("methodPassword"),
+            qr: document.getElementById("methodQr"),
+            faceid: document.getElementById("methodFaceid"),
+        };
+
+        function setMethod(name) {
+            methodTabs.forEach((btn) => {
+                const active = btn.dataset.methodTab === name;
+                btn.classList.toggle("is-active", active);
+                btn.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            Object.entries(methodPanels).forEach(([key, el]) => el.classList.toggle("is-active", key === name));
+            if (name === "qr") startQrFlow();
+            else stopQrFlow();
+        }
+
+        methodTabs.forEach((btn) => {
+            btn.addEventListener("click", () => setMethod(btn.dataset.methodTab));
+        });
+
+        // ---------------- QR login ----------------
+        const qrFrame = document.getElementById("qrFrame");
+        const qrHint = document.getElementById("qrHint");
+        let qrPollTimer = null;
+        let qrActive = false;
+
+        async function startQrFlow() {
+            qrActive = true;
+            qrFrame.innerHTML = '<span class="material-symbols-outlined">progress_activity</span>';
+            qrHint.textContent = "Загружаем код…";
+            try {
+                const res = await fetch("/api/qr/start", { method: "POST" });
+                const data = await res.json();
+                if (!qrActive) return;
+                qrFrame.innerHTML = `<img src="/api/qr/image/${data.token}.png" alt="QR-код для входа">`;
+                qrHint.textContent = "Откройте камеру на телефоне, где вы уже вошли в аккаунт, и наведите на код";
+                pollQrStatus(data.token, data.expiresIn);
+            } catch {
+                if (!qrActive) return;
+                qrFrame.innerHTML = '<span class="material-symbols-outlined">error</span>';
+                qrHint.textContent = "Не удалось загрузить код. Попробуйте ещё раз.";
+            }
+        }
+
+        function pollQrStatus(token, expiresIn) {
+            const deadline = Date.now() + expiresIn * 1000;
+            qrPollTimer = setInterval(async () => {
+                if (!qrActive) return;
+                if (Date.now() > deadline) {
+                    stopQrFlow();
+                    startQrFlow();
+                    return;
+                }
+                try {
+                    const res = await fetch(`/api/qr/status/${token}`);
+                    const data = await res.json();
+                    if (data.status === "confirmed") {
+                        qrHint.textContent = "Подтверждено! Выполняем вход…";
+                        const claimRes = await fetch(`/api/qr/claim/${token}`, { method: "POST" });
+                        const claimData = await claimRes.json();
+                        if (claimData.ok) {
+                            clearInterval(qrPollTimer);
+                            location.href = claimData.redirect || "/home";
+                        }
+                    } else if (data.status === "expired") {
+                        stopQrFlow();
+                        startQrFlow();
+                    }
+                } catch {
+                    /* сеть недоступна — попробуем на следующем тике */
+                }
+            }, 2000);
+        }
+
+        function stopQrFlow() {
+            qrActive = false;
+            if (qrPollTimer) {
+                clearInterval(qrPollTimer);
+                qrPollTimer = null;
+            }
+        }
+
+        // ---------------- Face ID / Touch ID login ----------------
+        const faceIdBtn = document.getElementById("faceIdBtn");
+        const faceIdHint = document.getElementById("faceIdHint");
+
+        function bufferToBase64url(buf) {
+            const bytes = new Uint8Array(buf);
+            let str = "";
+            for (const b of bytes) str += String.fromCharCode(b);
+            return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+        }
+
+        function credentialToJSON(credential) {
+            if (typeof credential.toJSON === "function") return credential.toJSON();
+            return {
+                id: credential.id,
+                rawId: bufferToBase64url(credential.rawId),
+                type: credential.type,
+                response: {
+                    clientDataJSON: bufferToBase64url(credential.response.clientDataJSON),
+                    authenticatorData: bufferToBase64url(credential.response.authenticatorData),
+                    signature: bufferToBase64url(credential.response.signature),
+                    userHandle: credential.response.userHandle ? bufferToBase64url(credential.response.userHandle) : null,
+                },
+            };
+        }
+
+        if (!window.PublicKeyCredential) {
+            faceIdBtn.disabled = true;
+            faceIdHint.textContent = "Этот браузер не поддерживает вход по Face ID / Touch ID";
+        } else {
+            faceIdBtn.addEventListener("click", async () => {
+                faceIdBtn.disabled = true;
+                faceIdHint.textContent = "Ожидаем подтверждение…";
+                try {
+                    const optionsRes = await fetch("/api/webauthn/login/options", { method: "POST" });
+                    const optionsJSON = await optionsRes.json();
+                    const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON
+                        ? PublicKeyCredential.parseRequestOptionsFromJSON(optionsJSON)
+                        : optionsJSON;
+                    const credential = await navigator.credentials.get({ publicKey, mediation: "optional" });
+                    const verifyRes = await fetch("/api/webauthn/login/verify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(credentialToJSON(credential)),
+                    });
+                    const data = await verifyRes.json();
+                    if (data.ok) {
+                        location.href = data.redirect || "/home";
+                    } else {
+                        faceIdHint.textContent = data.message || "Не удалось подтвердить вход";
+                    }
+                } catch (err) {
+                    faceIdHint.textContent = "Вход отменён или не удался";
+                } finally {
+                    faceIdBtn.disabled = false;
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winter.дисплей: Подтверждение входа</title>
+    <link rel="icon" href="/static/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0" rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+            line-height: 1;
+            vertical-align: middle;
+            user-select: none;
+        }
+
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --danger: #d33;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .panel {
+            width: 100%;
+            max-width: 380px;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 36px 28px;
+            text-align: center;
+            box-shadow: 0 30px 70px -25px rgba(0, 0, 0, 0.25);
+        }
+
+        .mark { width: 44px; height: 44px; border-radius: 13px; margin-bottom: 18px; object-fit: cover; }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+        }
+
+        .icon-circle .material-symbols-outlined { font-size: 30px; color: var(--ink-soft); }
+        .icon-circle.is-success { background: #e7f7ef; }
+        .icon-circle.is-success .material-symbols-outlined { color: #0e8a56; }
+
+        h1 { font-size: 19px; margin: 0 0 8px; letter-spacing: -0.01em; }
+        p { margin: 0 0 22px; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.12s ease, opacity 0.15s ease;
+        }
+
+        .btn--primary { background: #000000; color: #ffffff; }
+        .btn--primary:hover { opacity: 0.88; }
+        .btn--primary:active { transform: scale(0.98); }
+        .btn--primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <main class="panel">
+        {% if state == "expired" %}
+            <div class="icon-circle"><span class="material-symbols-outlined">schedule</span></div>
+            <h1>Код устарел</h1>
+            <p>Этот QR-код больше не действителен. Обновите страницу входа на компьютере и отсканируйте новый.</p>
+        {% elif state == "done" %}
+            <div class="icon-circle is-success"><span class="material-symbols-outlined">check_circle</span></div>
+            <h1>Вход уже подтверждён</h1>
+            <p>Можно вернуться на компьютер — там вход выполнится автоматически.</p>
+        {% else %}
+            <img class="mark" src="/static/favicon.png" alt="">
+            <h1>Подтвердите вход</h1>
+            <p>Вы входите в аккаунт Winter.дисплей на другом устройстве. Подтвердите, если это были вы.</p>
+            <button type="button" class="btn btn--primary" id="confirmBtn">
+                <span class="material-symbols-outlined">verified_user</span>
+                Подтвердить вход
+            </button>
+        {% endif %}
+    </main>
+
+    <script>
+        const confirmBtn = document.getElementById("confirmBtn");
+        if (confirmBtn) {
+            confirmBtn.addEventListener("click", async () => {
+                confirmBtn.disabled = true;
+                try {
+                    const res = await fetch("/api/qr/confirm/{{ token }}", { method: "POST" });
+                    if (!res.ok) throw new Error();
+                    document.querySelector(".panel").innerHTML = `
+                        <div class="icon-circle is-success"><span class="material-symbols-outlined">check_circle</span></div>
+                        <h1>Готово</h1>
+                        <p>Вход подтверждён. Вернитесь на компьютер — там вход выполнится автоматически.</p>`;
+                } catch {
+                    confirmBtn.disabled = false;
+                    alert("Не удалось подтвердить вход. Попробуйте ещё раз.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

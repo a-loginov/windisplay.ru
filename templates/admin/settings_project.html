@@ -5,8 +5,286 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winter.дисплей: Настройки проекта</title>
     <link rel="icon" href="/static/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0" rel="stylesheet">
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+            line-height: 1;
+            vertical-align: middle;
+            user-select: none;
+        }
+
+        :root {
+            --bg: #f5f5f5;
+            --ink: #111111;
+            --ink-soft: #6b6b6b;
+            --line: #e2e2e2;
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --radius-sm: 12px;
+            --danger: #d33;
+        }
+
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .stage {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        .top-nav { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .nav-back:hover { background: var(--bg); border-color: #cfcfcf; }
+        .nav-back .material-symbols-outlined { font-size: 20px; }
+
+        .topbar h1 { font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+        .topbar p { margin: 2px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+        .panel-card {
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 16px;
+        }
+
+        .panel-card h2 { margin: 0 0 4px; font-size: 15px; }
+        .panel-card p.hint { margin: 0 0 4px; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .switch-row:first-of-type { border-top: none; padding-top: 4px; }
+
+        .switch-row__text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+        .switch-row__text span { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+
+        .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+
+        .switch__track {
+            position: absolute;
+            inset: 0;
+            background: #d8d8d8;
+            border-radius: 999px;
+            transition: background 0.15s ease;
+        }
+
+        .switch__track::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.18s ease;
+        }
+
+        .switch input:checked + .switch__track { background: #000000; }
+        .switch input:checked + .switch__track::after { transform: translateX(18px); }
+        .switch input:focus-visible + .switch__track { outline: 2px solid #000; outline-offset: 2px; }
+
+        .time-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 0 4px;
+            border-top: 1px solid var(--line);
+        }
+
+        .time-row input[type="time"] {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: #ffffff;
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .time-row input[type="time"]:focus-visible { border-color: #000; }
+
+        .test-note {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--ink-soft);
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+        }
+
+        .test-note .material-symbols-outlined { font-size: 16px; }
+
+        .btn {
+            appearance: none;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 13px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.12s ease, opacity 0.15s ease;
+        }
+
+        .btn--primary { background: #000000; color: #ffffff; }
+        .btn--primary:hover { opacity: 0.88; }
+        .btn--primary:active { transform: scale(0.98); }
+
+        .toast-host {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            z-index: 80;
+        }
+
+        .toast {
+            background: #111111;
+            color: #ffffff;
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(10px) scale(0.96);
+            transition: opacity 170ms ease, transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .toast.is-visible { opacity: 1; transform: translateY(0) scale(1); }
+    </style>
 </head>
 <body>
-    
+    <main class="stage">
+        <div class="top-nav">
+            <a href="/admin" class="nav-back" aria-label="Назад в админ-панель">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </a>
+            <div class="topbar">
+                <h1>Настройки проекта</h1>
+                <p>Общие переключатели, влияющие на весь Winter.дисплей</p>
+            </div>
+        </div>
+
+        <form method="post" action="{{ url_for('admin_settings') }}">
+            <div class="panel-card">
+                <h2>Режим тестирования</h2>
+                <p class="hint">Новые регистрации помечаются как тестовые и не учитываются в статистике на обзорной странице.</p>
+
+                <div class="switch-row">
+                    <div class="switch-row__text">
+                        <strong>Тестовый режим</strong>
+                        <span>Включите перед демо или нагрузочным тестированием</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="testing_mode" {{ "checked" if testing_mode else "" }}>
+                        <span class="switch__track"></span>
+                    </label>
+                </div>
+
+                {% if test_users_count %}
+                <div class="test-note">
+                    <span class="material-symbols-outlined">info</span>
+                    Помечено как тестовые: {{ test_users_count }} аккаунт(ов)
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="panel-card">
+                <h2>Вечерняя сводка от Кометы</h2>
+                <p class="hint">AI-сводка активности за день появляется в разделе «Обзор» после указанного времени.</p>
+
+                <div class="switch-row">
+                    <div class="switch-row__text">
+                        <strong>Показывать сводку</strong>
+                        <span>Регистрации, новые экраны и медиафайлы за сегодня + короткий комментарий</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="daily_summary_enabled" {{ "checked" if daily_summary_enabled else "" }}>
+                        <span class="switch__track"></span>
+                    </label>
+                </div>
+
+                <div class="time-row">
+                    <div class="switch-row__text">
+                        <strong>Время появления</strong>
+                        <span>Сводку также можно сформировать раньше вручную — кнопкой в «Обзоре»</span>
+                    </div>
+                    <input type="time" name="daily_summary_time" value="{{ daily_summary_time }}">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn--primary">
+                <span class="material-symbols-outlined">check</span>
+                Сохранить настройки
+            </button>
+        </form>
+    </main>
+
+    <div class="toast-host" id="toastHost"></div>
+
+    <script>
+        const params = new URLSearchParams(location.search);
+        if (params.get("saved")) {
+            const el = document.createElement("div");
+            el.className = "toast";
+            el.textContent = "Настройки сохранены";
+            document.getElementById("toastHost").appendChild(el);
+            requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("is-visible")));
+            setTimeout(() => el.classList.remove("is-visible"), 2400);
+            history.replaceState({}, "", location.pathname);
+        }
+    </script>
 </body>
 </html>

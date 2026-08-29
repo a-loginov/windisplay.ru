@@ -5,7 +5,7 @@ from flask_bcrypt import Bcrypt
 from main import app
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_login import login_required, current_user, login_user, logout_user
-from db_manager import db, User, OrgInvite
+from db_manager import db, User, OrgInvite, get_bool_setting
 
 
 
@@ -106,6 +106,7 @@ def create_teacher_profile():
             full_name=full_name,
             company=company,
             role=role,
+            is_test=get_bool_setting("testing_mode", False),
         )
         user.set_password(password)
         db.session.add(user)
