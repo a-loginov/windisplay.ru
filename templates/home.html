@@ -1214,6 +1214,10 @@
                         </div>
                         <div class="org-members" id="orgMembers"></div>
                         <p class="hint org-hint">Роли: <strong>Владелец</strong> управляет организацией, <strong>Администратор</strong> назначает экраны, <strong>Участник</strong> работает с контентом.</p>
+                        <button type="button" class="btn btn--primary is-hidden" id="orgInviteBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                            Пригласить участника
+                        </button>
                     </div>
                 </section>
             </div>
@@ -1338,6 +1342,25 @@
             </div>
 
             <button type="button" class="btn btn--danger" id="mediaDeleteBtn">Удалить файл</button>
+        </div>
+    </div>
+
+    <div class="sheet-backdrop" id="inviteSheetBackdrop">
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="inviteSheetTitle">
+            <div class="sheet__handle"></div>
+            <div class="sheet__head">
+                <h2 id="inviteSheetTitle">Пригласить участника</h2>
+                <button type="button" class="sheet__close" id="inviteSheetClose" aria-label="Закрыть">✕</button>
+            </div>
+            <p class="hint" style="margin-top: 0;">Любой, кто перейдёт по ссылке, попадёт в организацию «<span id="inviteOrgName"></span>» как участник. Ссылка действует 14 дней.</p>
+            <div class="field">
+                <span class="field__label">Ссылка-приглашение</span>
+                <input type="text" id="inviteLinkInput" readonly>
+            </div>
+            <button type="button" class="btn btn--primary" id="inviteCopyBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                Скопировать ссылку
+            </button>
         </div>
     </div>
 

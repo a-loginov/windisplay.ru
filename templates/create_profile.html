@@ -315,74 +315,101 @@
 
     <main class="stage">
         <section class="panel">
-            <div class="panel__head">
-                <img class="mark" src="/static/favicon.png" alt="Winter.дисплей">
-                <h1>Создание аккаунта</h1>
-                <p>Регистрация доступна по пригласительному коду</p>
-            </div>
+            {% macro details_fields() %}
+                <label class="field">
+                    <span class="field__label">ФИО</span>
+                    <input type="text" name="full_name" placeholder="Иванов Иван Иванович" value="{{ form.full_name if form else '' }}" required>
+                </label>
 
-            <div class="steps">
-                <div class="steps__item is-current" id="stepIndicator1">
-                    <span class="steps__dot">1</span>
-                    <span>Приглашение</span>
-                </div>
-                <div class="steps__line"></div>
-                <div class="steps__item" id="stepIndicator2">
-                    <span class="steps__dot">2</span>
-                    <span>Данные</span>
-                </div>
-            </div>
-
-            <form class="wizard" action="/create_profile" method="post" id="registerForm">
-                <div class="step-panel{{ '' if error and error_step == 'details' else ' is-active' }}" id="step1">
-                    {% if error and error_step == 'invite' %}
-                        <p class="error-text">{{ error }}</p>
-                    {% endif %}
-
-                    <label class="field">
-                        <span class="field__label">Пригласительный код</span>
-                        <input type="password" name="invite_password" id="invitePassword" placeholder="Введите код приглашения" value="{{ invite_password or '' }}" required>
-                    </label>
-
-                    <button type="button" class="btn btn--primary" id="nextStepBtn" disabled>Продолжить</button>
-                </div>
-
-                <div class="step-panel{{ ' is-active' if error and error_step == 'details' else '' }}" id="step2">
-                    {% if error and error_step == 'details' %}
-                        <p class="error-text">{{ error }}</p>
-                    {% endif %}
-
-                    <label class="field">
-                        <span class="field__label">ФИО</span>
-                        <input type="text" name="full_name" placeholder="Иванов Иван Иванович" value="{{ form.full_name if form else '' }}" required>
-                    </label>
-
-                    <label class="field">
-                        <span class="field__label">Компания</span>
+                <label class="field">
+                    <span class="field__label">Компания</span>
+                    {% if invite %}
+                        <input type="text" value="{{ invite.company }}" readonly disabled>
+                        <input type="hidden" name="invite_token" value="{{ invite.token }}">
+                    {% else %}
                         <input type="text" name="company" placeholder="Название компании" value="{{ form.company if form else '' }}" required>
-                    </label>
+                    {% endif %}
+                </label>
 
-                    <label class="field">
-                        <span class="field__label">Логин</span>
-                        <input type="text" name="username" placeholder="Придумайте логин" autocomplete="username" value="{{ form.username if form else '' }}" required>
-                    </label>
+                <label class="field">
+                    <span class="field__label">Логин</span>
+                    <input type="text" name="username" placeholder="Придумайте логин" autocomplete="username" value="{{ form.username if form else '' }}" required>
+                </label>
 
-                    <label class="field">
-                        <span class="field__label">Пароль</span>
-                        <input type="password" name="password" id="password" placeholder="Не менее 6 символов" autocomplete="new-password" minlength="6" required>
-                    </label>
+                <label class="field">
+                    <span class="field__label">Пароль</span>
+                    <input type="password" name="password" id="password" placeholder="Не менее 6 символов" autocomplete="new-password" minlength="6" required>
+                </label>
 
-                    <label class="field">
-                        <span class="field__label">Повторите пароль</span>
-                        <input type="password" id="passwordConfirm" placeholder="Повторите пароль" autocomplete="new-password" required>
-                    </label>
+                <label class="field">
+                    <span class="field__label">Повторите пароль</span>
+                    <input type="password" id="passwordConfirm" placeholder="Повторите пароль" autocomplete="new-password" required>
+                </label>
 
-                    <p class="error-text" id="matchError" hidden>Пароли не совпадают</p>
+                <p class="error-text" id="matchError" hidden>Пароли не совпадают</p>
+            {% endmacro %}
+
+            {% if invite %}
+                <div class="panel__head">
+                    <img class="mark" src="/static/favicon.png" alt="Winter.дисплей">
+                    <h1>Создание аккаунта</h1>
+                    <p>Вы приглашены в «{{ invite.company }}»</p>
+                </div>
+
+                <form action="/create_profile" method="post" id="registerForm">
+                    {% if error %}
+                        <p class="error-text">{{ error }}</p>
+                    {% endif %}
+
+                    {{ details_fields() }}
 
                     <button type="submit" class="btn btn--primary">Создать аккаунт</button>
-                    <button type="button" class="btn btn--ghost" id="backStepBtn">Назад</button>
+                </form>
+            {% else %}
+                <div class="panel__head">
+                    <img class="mark" src="/static/favicon.png" alt="Winter.дисплей">
+                    <h1>Создание аккаунта</h1>
+                    <p>Регистрация доступна по пригласительному коду</p>
                 </div>
-            </form>
+
+                <div class="steps">
+                    <div class="steps__item is-current" id="stepIndicator1">
+                        <span class="steps__dot">1</span>
+                        <span>Приглашение</span>
+                    </div>
+                    <div class="steps__line"></div>
+                    <div class="steps__item" id="stepIndicator2">
+                        <span class="steps__dot">2</span>
+                        <span>Данные</span>
+                    </div>
+                </div>
+
+                <form class="wizard" action="/create_profile" method="post" id="registerForm">
+                    <div class="step-panel{{ '' if error and error_step == 'details' else ' is-active' }}" id="step1">
+                        {% if error and error_step == 'invite' %}
+                            <p class="error-text">{{ error }}</p>
+                        {% endif %}
+
+                        <label class="field">
+                            <span class="field__label">Пригласительный код</span>
+                            <input type="password" name="invite_password" id="invitePassword" placeholder="Введите код приглашения" value="{{ invite_password or '' }}" required>
+                        </label>
+
+                        <button type="button" class="btn btn--primary" id="nextStepBtn" disabled>Продолжить</button>
+                    </div>
+
+                    <div class="step-panel{{ ' is-active' if error and error_step == 'details' else '' }}" id="step2">
+                        {% if error and error_step == 'details' %}
+                            <p class="error-text">{{ error }}</p>
+                        {% endif %}
+
+                        {{ details_fields() }}
+
+                        <button type="submit" class="btn btn--primary">Создать аккаунт</button>
+                        <button type="button" class="btn btn--ghost" id="backStepBtn">Назад</button>
+                    </div>
+                </form>
+            {% endif %}
 
             <p class="panel__foot">Уже есть аккаунт? <a href="/">Войти</a></p>
         </section>
@@ -391,43 +418,46 @@
     <script>
         const step1 = document.getElementById("step1");
         const step2 = document.getElementById("step2");
-        const stepIndicator1 = document.getElementById("stepIndicator1");
-        const stepIndicator2 = document.getElementById("stepIndicator2");
-        const invitePassword = document.getElementById("invitePassword");
-        const nextStepBtn = document.getElementById("nextStepBtn");
-        const backStepBtn = document.getElementById("backStepBtn");
         const password = document.getElementById("password");
         const passwordConfirm = document.getElementById("passwordConfirm");
         const matchError = document.getElementById("matchError");
         const registerForm = document.getElementById("registerForm");
 
-        function updateNextState() {
-            nextStepBtn.disabled = !invitePassword.value.trim();
-        }
+        if (step1) {
+            const stepIndicator1 = document.getElementById("stepIndicator1");
+            const stepIndicator2 = document.getElementById("stepIndicator2");
+            const invitePassword = document.getElementById("invitePassword");
+            const nextStepBtn = document.getElementById("nextStepBtn");
+            const backStepBtn = document.getElementById("backStepBtn");
 
-        function goToStep(step) {
-            const onStep2 = step === 2;
-            step1.classList.toggle("is-active", !onStep2);
-            step2.classList.toggle("is-active", onStep2);
-            stepIndicator1.classList.toggle("is-current", !onStep2);
-            stepIndicator1.classList.toggle("is-done", onStep2);
-            stepIndicator2.classList.toggle("is-current", onStep2);
-        }
+            function updateNextState() {
+                nextStepBtn.disabled = !invitePassword.value.trim();
+            }
 
-        invitePassword.addEventListener("input", updateNextState);
-        updateNextState();
+            function goToStep(step) {
+                const onStep2 = step === 2;
+                step1.classList.toggle("is-active", !onStep2);
+                step2.classList.toggle("is-active", onStep2);
+                stepIndicator1.classList.toggle("is-current", !onStep2);
+                stepIndicator1.classList.toggle("is-done", onStep2);
+                stepIndicator2.classList.toggle("is-current", onStep2);
+            }
 
-        nextStepBtn.addEventListener("click", () => {
-            if (!invitePassword.value.trim()) return;
-            goToStep(2);
-            document.querySelector('input[name="full_name"]').focus();
-        });
+            invitePassword.addEventListener("input", updateNextState);
+            updateNextState();
 
-        backStepBtn.addEventListener("click", () => goToStep(1));
+            nextStepBtn.addEventListener("click", () => {
+                if (!invitePassword.value.trim()) return;
+                goToStep(2);
+                document.querySelector('input[name="full_name"]').focus();
+            });
 
-        if (step2.classList.contains("is-active")) {
-            stepIndicator1.classList.add("is-done");
-            stepIndicator2.classList.add("is-current");
+            backStepBtn.addEventListener("click", () => goToStep(1));
+
+            if (step2.classList.contains("is-active")) {
+                stepIndicator1.classList.add("is-done");
+                stepIndicator2.classList.add("is-current");
+            }
         }
 
         registerForm.addEventListener("submit", (e) => {

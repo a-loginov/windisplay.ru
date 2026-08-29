@@ -51,18 +51,30 @@ def logout():
     return redirect(url_for('login'))
 
 
+def _find_invite(token):
+    if not token:
+        return None
+    invite = OrgInvite.query.filter_by(token=token).first()
+    return invite if invite and invite.valid else None
+
+
 @app.route('/create_profile', methods=['GET', 'POST'])
 def create_teacher_profile():
+    invite_token = request.args.get('invite', '') if request.method == 'GET' else request.form.get('invite_token', '')
+    invite = _find_invite(invite_token)
+
     if request.method == 'POST':
-        invite_password = request.form.get('invite_password', '')
-
-        if invite_password != PEOPLE_INVATIE_PASSWORD:
-            return render_template('create_profile.html', error='Неверный пригласительный код', error_step='invite')
-
         full_name = request.form.get('full_name', '').strip()
-        company = request.form.get('company', '').strip()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
+
+        if invite:
+            company = invite.company
+        else:
+            invite_password = request.form.get('invite_password', '')
+            if invite_password != PEOPLE_INVATIE_PASSWORD:
+                return render_template('create_profile.html', error='Неверный пригласительный код', error_step='invite')
+            company = request.form.get('company', '').strip()
 
         if not full_name or not company or not username or not password:
             return render_template(
@@ -70,7 +82,8 @@ def create_teacher_profile():
                 error='Заполните все поля',
                 error_step='details',
                 form=request.form,
-                invite_password=invite_password,
+                invite_password=request.form.get('invite_password', ''),
+                invite=invite,
             )
 
         if User.query.filter_by(username=username).first():
@@ -79,15 +92,20 @@ def create_teacher_profile():
                 error='Этот логин уже занят',
                 error_step='details',
                 form=request.form,
-                invite_password=invite_password,
+                invite_password=request.form.get('invite_password', ''),
+                invite=invite,
             )
 
-        is_owner = User.query.filter_by(company=company).first() is None
+        if invite:
+            role = 'member'
+        else:
+            role = 'owner' if User.query.filter_by(company=company).first() is None else 'member'
+
         user = User(
             username=username,
             full_name=full_name,
             company=company,
-            role='owner' if is_owner else 'member'
+            role=role,
         )
         user.set_password(password)
         db.session.add(user)
@@ -96,7 +114,7 @@ def create_teacher_profile():
         login_user(user, remember=True)
         return redirect(url_for('home'))
 
-    return render_template('create_profile.html')
+    return render_template('create_profile.html', invite=invite)
 
 # ------------------------------ Backend ------------------------------ #
 
