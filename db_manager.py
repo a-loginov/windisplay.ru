@@ -26,6 +26,10 @@ def make_device_token():
     return secrets.token_urlsafe(32)
 
 
+def make_invite_token():
+    return secrets.token_urlsafe(24)
+
+
 def now():
     return datetime.utcnow()
 
@@ -60,6 +64,7 @@ class User(db.Model, UserMixin):
     password_hash = db.Column(db.String(128), nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
     company = db.Column(db.String(120), nullable=False)
+    role = db.Column(db.String(20), default="member", nullable=False)  # owner | admin | member
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     def set_password(self, password):
@@ -72,6 +77,20 @@ class User(db.Model, UserMixin):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class OrgInvite(db.Model):
+    __tablename__ = "org_invites"
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(64), unique=True, nullable=False, index=True)
+    company = db.Column(db.String(120), nullable=False, index=True)
+    created_by_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=now, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=True)
+
+    @property
+    def valid(self):
+        return self.expires_at is None or self.expires_at > now()
 
 
 class MediaAsset(db.Model):
@@ -93,6 +112,7 @@ class Device(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     name = db.Column(db.String(120), default="")
     location = db.Column(db.String(120), default="")
+    is_virtual = db.Column(db.Boolean, default=False, nullable=False)
     token = db.Column(db.String(64), unique=True, nullable=True, index=True)
     pair_code = db.Column(db.String(8), nullable=True, index=True)
     code_expires_at = db.Column(db.DateTime, nullable=True)

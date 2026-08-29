@@ -4,9 +4,11 @@ import db_manager
 from api.login_manager import *
 from api.admin import *
 from api.ai_mod import *
+from api.ai_chat import *
 from api.tv import *
 from api.screens import *
 from api.media import *
+from api.org import *
 
 
 if __name__ == "__main__":

@@ -1,24 +1,95 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <script>
+        (function () {
+            var theme = localStorage.getItem("wd_theme") || "light";
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winter.дисплей: Главная</title>
     <link rel="icon" href="/static/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0" rel="stylesheet">
     <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+            line-height: 1;
+            vertical-align: middle;
+            user-select: none;
+        }
+
         :root {
             --bg: #f5f5f5;
             --ink: #111111;
             --ink-soft: #6b6b6b;
             --line: #e2e2e2;
+            --panel: #ffffff;
+            --hover-bg: #ececec;
+            --border-hover: #cfcfcf;
+            --overlay-bg: rgba(17, 17, 17, 0.32);
+            --focus-ring: #111111;
+            --focus-shadow: rgba(0, 0, 0, 0.08);
+            --accent-bg: #000000;
+            --accent-ink: #ffffff;
             --radius-lg: 28px;
             --radius-md: 18px;
             --danger: #d33;
+            --danger-bg: #fff0f0;
+            --danger-border: #f6cccc;
+            --danger-bg-hover: #ffe6e6;
+            --status-offline-bg: #f0f0f0;
+            --status-online-bg: #e7f7ef;
+            --status-online-ink: #0e8a56;
+            --status-pending-bg: #fff3e0;
+            --status-pending-ink: #b36a00;
+            --status-virtual-bg: #eceef3;
+            --status-virtual-ink: #5b6472;
+            --role-owner-bg: #fff3e0;
+            --role-owner-ink: #a85a00;
+            --role-admin-bg: #e7effb;
+            --role-admin-ink: #2059a8;
+            --role-member-bg: #efefef;
             --sidebar-w: 260px;
             --sidebar-w-collapsed: 84px;
             --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
             --dur-md: 320ms;
             --dur-sm: 170ms;
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0b0d12;
+            --ink: #f2f3f5;
+            --ink-soft: #9aa0ab;
+            --line: #262a33;
+            --panel: #161920;
+            --hover-bg: #20242c;
+            --border-hover: #3a3f4a;
+            --overlay-bg: rgba(0, 0, 0, 0.6);
+            --focus-ring: #f2f3f5;
+            --focus-shadow: rgba(255, 255, 255, 0.14);
+            --accent-bg: #ffffff;
+            --accent-ink: #0b0d12;
+            --danger-bg: rgba(255, 90, 90, 0.14);
+            --danger-border: rgba(255, 90, 90, 0.4);
+            --danger-bg-hover: rgba(255, 90, 90, 0.22);
+            --status-offline-bg: #262a33;
+            --status-online-bg: rgba(46, 160, 90, 0.18);
+            --status-online-ink: #4ade80;
+            --status-pending-bg: rgba(217, 140, 0, 0.2);
+            --status-pending-ink: #ffb648;
+            --status-virtual-bg: rgba(120, 130, 150, 0.22);
+            --status-virtual-ink: #b7c0cf;
+            --role-owner-bg: rgba(217, 140, 0, 0.2);
+            --role-owner-ink: #ffb648;
+            --role-admin-bg: rgba(70, 130, 220, 0.22);
+            --role-admin-ink: #7fb0ff;
+            --role-member-bg: #262a33;
         }
 
         * { box-sizing: border-box; }
@@ -29,10 +100,16 @@
             margin: 0;
             background: var(--bg);
             color: var(--ink);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         svg { color: inherit; }
+        .icon-16 { font-size: 16px; }
+        .icon-15 { font-size: 15px; }
+        .icon-18 { font-size: 18px; }
+        .icon-21 { font-size: 21px; }
+        .icon-26 { font-size: 26px; }
 
         /* ---------- shared primitives ---------- */
         .btn {
@@ -52,10 +129,11 @@
         }
 
         .btn svg { width: 16px; height: 16px; }
+        .btn .material-symbols-outlined { font-size: 18px; }
         .btn:active { transform: scale(0.97); }
-        .btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+        .btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
-        .btn--primary { background: #000000; color: #ffffff; }
+        .btn--primary { background: var(--accent-bg); color: var(--accent-ink); }
         .btn--primary:hover { opacity: 0.88; }
         .btn--primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
@@ -65,7 +143,7 @@
         .field input {
             appearance: none;
             border: 1px solid var(--line);
-            background: #ffffff;
+            background: var(--panel);
             border-radius: var(--radius-md);
             padding: 12px 16px;
             font-size: 15px;
@@ -76,8 +154,53 @@
         }
 
         .field input:focus-visible {
-            border-color: #000;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px var(--focus-shadow);
+        }
+
+        .pair-code {
+            font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .hint { font-size: 12px; color: var(--ink-soft); margin: -6px 0 14px; line-height: 1.5; }
+
+        .segment {
+            display: flex;
+            gap: 4px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 18px;
+        }
+
+        .segment__btn {
+            appearance: none;
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-radius: calc(var(--radius-md) - 4px);
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .segment__btn svg { width: 15px; height: 15px; }
+        .segment__btn .material-symbols-outlined { font-size: 17px; }
+
+        .segment__btn.is-active {
+            background: var(--panel);
+            color: var(--ink);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
         }
 
         .status {
@@ -88,15 +211,19 @@
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 999px;
+            width: fit-content;
         }
 
-        .status--offline { background: #f0f0f0; color: var(--ink-soft); }
+        .status--offline { background: var(--status-offline-bg); color: var(--ink-soft); }
+        .status--online { background: var(--status-online-bg); color: var(--status-online-ink); }
+        .status--pending { background: var(--status-pending-bg); color: var(--status-pending-ink); }
+        .status--virtual { background: var(--status-virtual-bg); color: var(--status-virtual-ink); }
         .status__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
-        .btn--danger { background: #fff0f0; color: var(--danger); border: 1px solid #f6cccc; width: 100%; }
-        .btn--danger:hover { background: #ffe6e6; }
+        .btn--danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); width: 100%; }
+        .btn--danger:hover { background: var(--danger-bg-hover); }
 
-        button:focus-visible, a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+        button:focus-visible, a:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
         /* ---------- app shell ---------- */
         .app { display: flex; min-height: 100vh; }
@@ -104,7 +231,7 @@
         .sidebar {
             width: var(--sidebar-w);
             flex-shrink: 0;
-            background: #ffffff;
+            background: var(--panel);
             border-right: 1px solid var(--line);
             display: flex;
             flex-direction: column;
@@ -180,7 +307,7 @@
         .sidebar.is-collapsed .nav__item span { max-width: 0; opacity: 0; }
 
         .nav__item:hover { background: var(--bg); color: var(--ink); }
-        .nav__item.is-active { background: #000000; color: #ffffff; }
+        .nav__item.is-active { background: var(--accent-bg); color: var(--accent-ink); }
         a.nav__item { text-decoration: none; }
 
         .sidebar__spacer { flex: 1; }
@@ -192,7 +319,7 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            background: #ffffff;
+            background: var(--panel);
             border: 1px solid var(--line);
             display: flex;
             align-items: center;
@@ -246,7 +373,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: #ffffff;
+            background: var(--panel);
             border-top: 1px solid var(--line);
             padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
             justify-content: space-around;
@@ -273,7 +400,7 @@
 
         .mobile-nav button svg,
         .mobile-nav a svg { width: 21px; height: 21px; }
-        .mobile-nav button.is-active { color: #000000; }
+        .mobile-nav button.is-active { color: var(--ink); }
 
         @media (max-width: 899px) {
             .sidebar { display: none; }
@@ -290,7 +417,7 @@
         }
 
         .stat-card {
-            background: #ffffff;
+            background: var(--panel);
             border: 1px solid var(--line);
             border-radius: var(--radius-md);
             padding: 20px;
@@ -310,7 +437,7 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            background: #ffffff;
+            background: var(--panel);
             border: 1px solid var(--line);
             border-radius: var(--radius-md);
             padding: 18px;
@@ -321,7 +448,7 @@
             transition: border-color 0.15s ease, transform 0.15s ease;
         }
 
-        .action-card:hover { border-color: #cfcfcf; transform: translateY(-1px); }
+        .action-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
 
         .action-card__icon {
             width: 40px;
@@ -351,6 +478,9 @@
         .view-header h2 { margin: 0 0 4px; font-size: 18px; }
         .view-header p { margin: 0; color: var(--ink-soft); font-size: 13px; }
 
+        .view-header--error { padding: 10px 14px; border: 1px solid var(--danger-border); background: var(--danger-bg); border-radius: var(--radius-md); color: var(--danger); font-size: 13px; margin-bottom: 16px; display: none; }
+        .view-header--error.is-visible { display: block; }
+
         .empty-state {
             border: 1px dashed var(--line);
             border-radius: var(--radius-lg);
@@ -360,6 +490,8 @@
         }
 
         .empty-state.is-hidden { display: none; }
+
+        .is-hidden { display: none; }
 
         .empty-state__icon {
             width: 52px;
@@ -384,7 +516,7 @@
         }
 
         .screen-card {
-            background: #ffffff;
+            background: var(--panel);
             border: 1px solid var(--line);
             border-radius: var(--radius-md);
             padding: 18px;
@@ -396,6 +528,7 @@
 
         .screen-card.is-entering { opacity: 0; transform: translateY(10px) scale(0.98); }
         .screen-card.is-leaving { opacity: 0; transform: scale(0.92); }
+        .screen-card.is-offline { opacity: 0.55; }
 
         .screen-card__top { display: flex; align-items: flex-start; justify-content: space-between; }
 
@@ -426,10 +559,27 @@
         }
 
         .screen-card__delete svg { width: 16px; height: 16px; }
-        .screen-card__delete:hover { background: #fff0f0; color: var(--danger); }
+        .screen-card__delete:hover { background: var(--danger-bg); color: var(--danger); }
 
-        .screen-card h3 { margin: 0; font-size: 15px; }
-        .screen-card__location { margin: -6px 0 2px; font-size: 13px; color: var(--ink-soft); }
+        .screen-card__body {
+            appearance: none;
+            border: none;
+            background: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            cursor: pointer;
+            width: 100%;
+            color: inherit;
+            font: inherit;
+        }
+
+        .screen-card__body h3 { margin: 0; font-size: 15px; }
+        .screen-card__body:hover h3 { text-decoration: underline; }
+        .screen-card__location { margin: 0; font-size: 13px; color: var(--ink-soft); }
+        .screen-card__meta { font-size: 12px; color: var(--ink-soft); }
 
         /* ---------- media view ---------- */
         .media-grid {
@@ -439,7 +589,7 @@
         }
 
         .media-card {
-            background: #ffffff;
+            background: var(--panel);
             border: 1px solid var(--line);
             border-radius: var(--radius-md);
             padding: 12px;
@@ -469,7 +619,7 @@
         }
 
         .media-card__delete svg { width: 15px; height: 15px; }
-        .media-card__delete:hover { background: #fff0f0; color: var(--danger); }
+        .media-card__delete:hover { background: var(--danger-bg); color: var(--danger); }
 
         .media-card__body {
             appearance: none;
@@ -538,6 +688,123 @@
 
         .info-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; }
 
+        /* ---------- org view ---------- */
+        .org-stats { margin-bottom: 14px; }
+
+        .org-hero {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 14px;
+        }
+
+        .org-hero__mark {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
+            font-weight: 800;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .org-hero__info { min-width: 0; flex: 1; }
+        .org-hero__info h3 { margin: 0 0 4px; font-size: 16px; }
+        .org-hero__info p { margin: 0; font-size: 13px; color: var(--ink-soft); }
+        .org-hero__role { flex-shrink: 0; }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--role-member-bg);
+            color: var(--ink-soft);
+        }
+
+        .role-badge--owner { background: var(--role-owner-bg); color: var(--role-owner-ink); }
+        .role-badge--admin { background: var(--role-admin-bg); color: var(--role-admin-ink); }
+        .role-badge--member { background: var(--role-member-bg); color: var(--ink-soft); }
+
+        .org-card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+
+        .org-card__head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .org-card__head h3 { margin: 0; font-size: 16px; }
+
+        .org-card__count {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-soft);
+            background: var(--bg);
+            border-radius: 999px;
+            padding: 3px 10px;
+        }
+
+        .org-members { display: flex; flex-direction: column; }
+
+        .org-member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .org-member:first-child { border-top: none; padding-top: 4px; }
+
+        .org-member__avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .org-member__info { min-width: 0; flex: 1; }
+
+        .org-member__name {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .org-member__name em { font-style: normal; font-size: 11px; color: var(--ink-soft); }
+        .org-member__login { font-size: 12px; color: var(--ink-soft); }
+        .org-member__joined { font-size: 12px; color: var(--ink-soft); flex-shrink: 0; }
+        .org-hint { margin: 14px 0 0; }
+
         .info-row {
             display: flex;
             justify-content: space-between;
@@ -555,7 +822,7 @@
         .sheet-backdrop {
             position: fixed;
             inset: 0;
-            background: rgba(17, 17, 17, 0.32);
+            background: var(--overlay-bg);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -568,7 +835,7 @@
         .sheet-backdrop.is-open { opacity: 1; pointer-events: auto; }
 
         .sheet {
-            background: #ffffff;
+            background: var(--panel);
             width: 92%;
             max-width: 440px;
             max-height: 86vh;
@@ -580,6 +847,8 @@
             opacity: 0;
             transition: transform var(--dur-md) var(--ease-spring), opacity var(--dur-sm) ease;
         }
+
+        .sheet--wide { max-width: 560px; }
 
         .sheet-backdrop.is-open .sheet { transform: scale(1); opacity: 1; }
         .sheet__handle { display: none; }
@@ -608,14 +877,14 @@
             line-height: 1;
         }
 
-        .sheet__close:hover { background: #ececec; color: var(--ink); }
+        .sheet__close:hover { background: var(--hover-bg); color: var(--ink); }
 
         .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 20px; }
 
         .chip {
             appearance: none;
             border: 1px solid var(--line);
-            background: #ffffff;
+            background: var(--panel);
             border-radius: 999px;
             padding: 7px 14px;
             font-size: 13px;
@@ -625,10 +894,94 @@
             transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
         }
 
-        .chip:hover { border-color: #cfcfcf; }
-        .chip.is-selected { background: #000000; color: #ffffff; border-color: #000000; }
+        .chip:hover { border-color: var(--border-hover); }
+        .chip.is-selected { background: var(--accent-bg); color: var(--accent-ink); border-color: var(--accent-bg); }
 
         #screenForm .btn { width: 100%; }
+
+        /* ---------- playlist sheet ---------- */
+        .playlist-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+        .playlist-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+        }
+
+        .playlist-row__thumb {
+            width: 56px;
+            height: 42px;
+            border-radius: 8px;
+            background: var(--bg);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-soft);
+            flex-shrink: 0;
+        }
+
+        .playlist-row__thumb img,
+        .playlist-row__thumb video { width: 100%; height: 100%; object-fit: cover; }
+        .playlist-row__thumb svg { width: 20px; height: 20px; }
+
+        .playlist-row__name {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .playlist-row__duration input {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            border-radius: var(--radius-md);
+            padding: 6px 8px;
+            font-size: 13px;
+            width: 64px;
+            color: var(--ink);
+            outline: none;
+        }
+
+        .playlist-row__duration input:focus-visible { border-color: var(--focus-ring); }
+
+        .playlist-row__remove {
+            border: none;
+            background: none;
+            color: var(--ink-soft);
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .playlist-row__remove svg { width: 15px; height: 15px; }
+        .playlist-row__remove:hover { background: var(--danger-bg); color: var(--danger); }
+
+        .playlist-add__label { font-size: 12px; color: var(--ink-soft); font-weight: 600; }
+
+        .playlist-library {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 20px;
+            max-height: 170px;
+            overflow-y: auto;
+        }
+
+        .chip:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        #playlistSave { width: 100%; }
 
         @media (max-width: 767px) {
             .sheet-backdrop { align-items: flex-end; }
@@ -671,8 +1024,8 @@
         }
 
         .toast {
-            background: #111111;
-            color: #ffffff;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
             padding: 10px 18px;
             border-radius: 999px;
             font-size: 13px;
@@ -715,6 +1068,10 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
                     <span>Медиа</span>
                 </button>
+                <button class="nav__item" data-view-btn="org">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/></svg>
+                    <span>Организация</span>
+                </button>
                 <a class="nav__item" href="/account">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
                     <span>Настройки</span>
@@ -755,7 +1112,7 @@
                         <div class="quick-actions__row">
                             <button class="action-card" id="qaAddScreen">
                                 <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
-                                <span class="action-card__text"><strong>Добавить экран</strong><small>Подключить новое устройство</small></span>
+                                <span class="action-card__text"><strong>Добавить экран</strong><small>Привязать устройство по коду</small></span>
                             </button>
                             <a class="action-card" href="/account">
                                 <span class="action-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg></span>
@@ -777,12 +1134,14 @@
                         </button>
                     </div>
 
+                    <div class="view-header--error" id="screensError" role="alert"></div>
+
                     <div class="empty-state" id="screensEmpty">
                         <div class="empty-state__icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
                         </div>
                         <h3>Экранов пока нет</h3>
-                        <p>Добавьте первый экран — укажите имя и место, где он будет установлен</p>
+                        <p>Получите код на устройстве и добавьте первый экран</p>
                         <button class="btn btn--primary" id="addScreenEmptyBtn">Добавить экран</button>
                     </div>
 
@@ -813,6 +1172,50 @@
 
                     <div class="media-grid" id="mediaGrid"></div>
                 </section>
+
+                <section class="view" data-view="org">
+                    <div class="view-header">
+                        <div>
+                            <h2 id="orgName">Организация</h2>
+                            <p>Компания, созданная при регистрации аккаунта</p>
+                        </div>
+                    </div>
+
+                    <div class="view-header--error" id="orgError" role="alert"></div>
+
+                    <div class="org-hero">
+                        <div class="org-hero__mark" id="orgMark">—</div>
+                        <div class="org-hero__info">
+                            <h3 id="orgHeroName">—</h3>
+                            <p id="orgHeroDesc">Ваша роль указана справа</p>
+                        </div>
+                        <div class="org-hero__role" id="orgMyRole"></div>
+                    </div>
+
+                    <div class="stat-grid org-stats">
+                        <div class="stat-card">
+                            <span class="stat-card__label">Участников</span>
+                            <span class="stat-card__value" id="orgStatMembers">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__label">Экранов</span>
+                            <span class="stat-card__value" id="orgStatScreens">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__label">Медиафайлов</span>
+                            <span class="stat-card__value" id="orgStatMedia">0</span>
+                        </div>
+                    </div>
+
+                    <div class="org-card">
+                        <div class="org-card__head">
+                            <h3>Участники</h3>
+                            <span class="org-card__count" id="orgMembersCount">0</span>
+                        </div>
+                        <div class="org-members" id="orgMembers"></div>
+                        <p class="hint org-hint">Роли: <strong>Владелец</strong> управляет организацией, <strong>Администратор</strong> назначает экраны, <strong>Участник</strong> работает с контентом.</p>
+                    </div>
+                </section>
             </div>
         </main>
     </div>
@@ -830,6 +1233,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5.5-5.5L9 17"/></svg>
             Медиа
         </button>
+        <button data-view-btn="org">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M9 16h.01M15 16h.01"/></svg>
+            Организация
+        </button>
         <a href="/account">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><circle cx="15" cy="6" r="2"/><line x1="3" y1="12" x2="21" y2="12"/><circle cx="9" cy="12" r="2"/><line x1="3" y1="18" x2="21" y2="18"/><circle cx="17" cy="18" r="2"/></svg>
             Настройки
@@ -844,6 +1251,16 @@
                 <button type="button" class="sheet__close" id="sheetClose" aria-label="Закрыть">✕</button>
             </div>
             <form id="screenForm">
+                <div class="segment" role="tablist" aria-label="Тип экрана">
+                    <button type="button" class="segment__btn is-active" data-screen-mode="real" aria-selected="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+                        Реальный девайс
+                    </button>
+                    <button type="button" class="segment__btn" data-screen-mode="virtual" aria-selected="false">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="12" rx="2"/><path d="M8 19h8M12 15v4"/><path d="m10 9 4 2-4 2z"/></svg>
+                        Виртуальный экран
+                    </button>
+                </div>
                 <label class="field">
                     <span class="field__label">Имя экрана</span>
                     <input type="text" id="screenName" placeholder="Например, Экран у входа" required>
@@ -862,8 +1279,32 @@
                     <button type="button" class="chip" data-chip="Офис">Офис</button>
                     <button type="button" class="chip" data-chip="Лобби">Лобби</button>
                 </div>
+                <div id="realDeviceFields">
+                    <label class="field">
+                        <span class="field__label">Код с экрана устройства</span>
+                        <input type="text" id="screenCode" class="pair-code" placeholder="Например, 7K2M9B" autocomplete="off" required>
+                    </label>
+                    <p class="hint">Код показывается на самом устройстве. Если там его нет — на экране нажмите «Получить код».</p>
+                </div>
+                <p class="hint is-hidden" id="virtualInfoHint">Виртуальный экран работает без физического устройства — удобно для демо и проверки плейлистов.</p>
                 <button type="submit" class="btn btn--primary" id="submitScreen" disabled>Создать экран</button>
             </form>
+        </div>
+    </div>
+
+    <div class="sheet-backdrop" id="playlistSheetBackdrop">
+        <div class="sheet sheet--wide" role="dialog" aria-modal="true" aria-labelledby="playlistTitle">
+            <div class="sheet__handle"></div>
+            <div class="sheet__head">
+                <h2 id="playlistTitle">Плейлист</h2>
+                <button type="button" class="sheet__close" id="playlistSheetClose" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="playlist-list" id="playlistRows"></div>
+            <div class="playlist-add">
+                <span class="playlist-add__label">Добавить из библиотеки</span>
+                <div class="playlist-library" id="playlistLibrary"></div>
+            </div>
+            <button type="button" class="btn btn--primary" id="playlistSave">Сохранить плейлист</button>
         </div>
     </div>
 
@@ -904,7 +1345,7 @@
 
     <script>
         const CURRENT_USER_NAME = {{ current_user.full_name | tojson }};
-        const VIEW_TITLES = { home: "Главная", screens: "Экраны", media: "Медиа" };
+        const VIEW_TITLES = { home: "Главная", screens: "Экраны", media: "Медиа", org: "Организация" };
         let currentView = "home";
 
         function switchView(name) {
@@ -953,24 +1394,38 @@
             }, 2400);
         }
 
+        // ---------------- API helper ----------------
+        async function api(path, options = {}) {
+            let headers = options.headers || {};
+            if (options.body && !(options.body instanceof FormData) && !headers["Content-Type"]) {
+                headers = { "Content-Type": "application/json", ...headers };
+            }
+            const res = await fetch(path, { ...options, headers });
+            let data = null;
+            try { data = await res.json(); } catch { /* пустое тело */ }
+            if (!res.ok) {
+                const msg = (data && (data.message || data.error)) || "Что-то пошло не так";
+                throw new Error(msg);
+            }
+            return data;
+        }
+
+        function esc(s) {
+            return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+            }[c]));
+        }
+
         // ---------------- screens ----------------
         const screensGrid = document.getElementById("screensGrid");
         const screensEmpty = document.getElementById("screensEmpty");
         const screensCount = document.getElementById("screensCount");
+        const screensError = document.getElementById("screensError");
         const statTotal = document.getElementById("statTotal");
         const statOnline = document.getElementById("statOnline");
         const statPending = document.getElementById("statPending");
 
         let screens = [];
-        try {
-            screens = JSON.parse(localStorage.getItem("wd_screens") || "[]");
-        } catch {
-            screens = [];
-        }
-
-        function persistScreens() {
-            localStorage.setItem("wd_screens", JSON.stringify(screens));
-        }
 
         function pluralScreens(n) {
             const mod10 = n % 10;
@@ -980,31 +1435,44 @@
             return "экранов";
         }
 
+        const STATE_LABELS = { online: "Подключено", pending: "Ожидает подключения", offline: "Не в сети", virtual: "Виртуальный экран" };
+
+        function screenStateClass(state) {
+            if (state === "online") return "status--online";
+            if (state === "pending") return "status--pending";
+            if (state === "virtual") return "status--virtual";
+            return "status--offline";
+        }
+
         function updateStats() {
+            const online = screens.filter((s) => s.state === "online").length;
+            const pending = screens.filter((s) => s.state === "pending").length;
             statTotal.textContent = screens.length;
-            statOnline.textContent = 0;
-            statPending.textContent = screens.length;
+            statOnline.textContent = online;
+            statPending.textContent = pending;
             screensCount.textContent = `${screens.length} ${pluralScreens(screens.length)}`;
             screensEmpty.classList.toggle("is-hidden", screens.length > 0);
         }
 
         function buildScreenCard(screen) {
             const card = document.createElement("article");
-            card.className = "screen-card is-entering";
-            card.dataset.id = screen.id;
+            card.className = "screen-card is-entering" + (screen.state === "offline" ? " is-offline" : "");
+            card.dataset.id = screen.screenId;
             card.innerHTML = `
                 <div class="screen-card__top">
                     <span class="screen-card__icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
                     </span>
-                    <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${screen.id}">
+                    <button class="screen-card__delete" aria-label="Удалить экран" data-delete="${esc(screen.screenId)}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
                     </button>
                 </div>
-                <h3>${screen.name}</h3>
-                <p class="screen-card__location">${screen.location}</p>
-                <span class="status status--offline"><span class="status__dot"></span>Не подключено</span>
-            `;
+                <button type="button" class="screen-card__body" data-open-playlist="${esc(screen.screenId)}" aria-label="Плейлист экрана «${esc(screen.name)}»">
+                    <h3>${esc(screen.name)}</h3>
+                    <p class="screen-card__location">${esc(screen.location)}</p>
+                    <span class="status ${screenStateClass(screen.state)}"><span class="status__dot"></span>${STATE_LABELS[screen.state]}</span>
+                    <span class="screen-card__meta">${screen.itemCount} ${pluralFilesOf(screen.itemCount)}</span>
+                </button>`;
             return card;
         }
 
@@ -1018,41 +1486,31 @@
             updateStats();
         }
 
-        function addScreen(name, location) {
-            const screen = { id: Date.now().toString(36), name, location };
-            screens.push(screen);
-            persistScreens();
-
-            const card = buildScreenCard(screen);
-            screensGrid.appendChild(card);
-            requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-entering")));
-
-            updateStats();
-            showToast(`Экран «${name}» создан`);
+        async function loadScreens() {
+            try {
+                const data = await api("/api/screens");
+                screens = data.items || [];
+                screensError.classList.remove("is-visible");
+                renderScreens();
+            } catch (err) {
+                screensError.textContent = "Не удалось загрузить экраны. " + err.message;
+                screensError.classList.add("is-visible");
+            }
         }
 
         screensGrid.addEventListener("click", (e) => {
-            const btn = e.target.closest("[data-delete]");
-            if (!btn) return;
-            const id = btn.dataset.delete;
-            if (!confirm("Удалить этот экран?")) return;
-
-            const card = btn.closest(".screen-card");
-            card.classList.add("is-leaving");
-            card.addEventListener(
-                "transitionend",
-                () => {
-                    card.remove();
-                    screens = screens.filter((s) => s.id !== id);
-                    persistScreens();
-                    updateStats();
-                },
-                { once: true }
-            );
-            showToast("Экран удалён");
+            const deleteBtn = e.target.closest("[data-delete]");
+            if (deleteBtn) {
+                const id = deleteBtn.dataset.delete;
+                if (!confirm("Удалить этот экран? Показ на устройстве остановится.")) return;
+                api(`/api/screens/${id}`, { method: "DELETE" })
+                    .then(() => { showToast("Экран удалён"); loadScreens(); })
+                    .catch((err) => showToast(err.message));
+                return;
+            }
+            const openBtn = e.target.closest("[data-open-playlist]");
+            if (openBtn) openPlaylistSheet(openBtn.dataset.openPlaylist);
         });
-
-        renderScreens();
 
         // ---------------- create-screen sheet ----------------
         const sheetBackdrop = document.getElementById("sheetBackdrop");
@@ -1060,11 +1518,37 @@
         const screenForm = document.getElementById("screenForm");
         const screenNameInput = document.getElementById("screenName");
         const screenLocationInput = document.getElementById("screenLocation");
+        const screenCodeInput = document.getElementById("screenCode");
         const submitScreenBtn = document.getElementById("submitScreen");
         const chips = document.querySelectorAll(".chip");
+        const segmentBtns = document.querySelectorAll("[data-screen-mode]");
+        const realDeviceFields = document.getElementById("realDeviceFields");
+        const virtualInfoHint = document.getElementById("virtualInfoHint");
+        let screenMode = "real";
+
+        function setScreenMode(mode) {
+            screenMode = mode;
+            segmentBtns.forEach((btn) => {
+                const active = btn.dataset.screenMode === mode;
+                btn.classList.toggle("is-active", active);
+                btn.setAttribute("aria-selected", active ? "true" : "false");
+            });
+            const showCode = mode === "real";
+            realDeviceFields.classList.toggle("is-hidden", !showCode);
+            virtualInfoHint.classList.toggle("is-hidden", showCode);
+            updateSubmitState();
+        }
+
+        segmentBtns.forEach((btn) => {
+            btn.addEventListener("click", () => setScreenMode(btn.dataset.screenMode));
+        });
 
         function updateSubmitState() {
-            submitScreenBtn.disabled = !(screenNameInput.value.trim() && screenLocationInput.value.trim());
+            submitScreenBtn.disabled = !(
+                screenNameInput.value.trim() &&
+                screenLocationInput.value.trim() &&
+                (screenMode === "virtual" || screenCodeInput.value.trim())
+            );
         }
 
         function syncChipSelection() {
@@ -1082,13 +1566,15 @@
         });
 
         screenNameInput.addEventListener("input", updateSubmitState);
-        screenLocationInput.addEventListener("input", () => {
-            syncChipSelection();
+        screenLocationInput.addEventListener("input", () => { syncChipSelection(); updateSubmitState(); });
+        screenCodeInput.addEventListener("input", () => {
+            screenCodeInput.value = screenCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
             updateSubmitState();
         });
 
         function openSheet() {
             screenForm.reset();
+            setScreenMode("real");
             syncChipSelection();
             updateSubmitState();
             sheetBackdrop.classList.add("is-open");
@@ -1112,15 +1598,30 @@
         });
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape" && sheetBackdrop.classList.contains("is-open")) closeSheet();
+            if (e.key === "Escape" && playlistSheetBackdrop.classList.contains("is-open")) closePlaylistSheet();
+            if (e.key === "Escape" && mediaSheetBackdrop.classList.contains("is-open")) closeMediaSheet();
         });
 
-        screenForm.addEventListener("submit", (e) => {
+        screenForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = screenNameInput.value.trim();
             const location = screenLocationInput.value.trim();
+            const code = screenCodeInput.value.trim();
             if (!name || !location) return;
-            addScreen(name, location);
-            closeSheet();
+            if (screenMode !== "virtual" && !code) return;
+
+            submitScreenBtn.disabled = true;
+            try {
+                const payload = screenMode === "virtual" ? { name, location, mode: "virtual" } : { name, location, code };
+                await api("/api/screens", { method: "POST", body: JSON.stringify(payload) });
+                closeSheet();
+                showToast(`Экран «${name}» создан`);
+                await loadScreens();
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                submitScreenBtn.disabled = false;
+            }
         });
 
         // ---------------- media ----------------
@@ -1130,16 +1631,11 @@
         const statMedia = document.getElementById("statMedia");
         const mediaInput = document.getElementById("mediaInput");
 
-        const mediaUrls = new Map();
         let mediaItems = [];
-        try {
-            mediaItems = JSON.parse(localStorage.getItem("wd_media") || "[]");
-        } catch {
-            mediaItems = [];
-        }
 
-        function persistMedia() {
-            localStorage.setItem("wd_media", JSON.stringify(mediaItems));
+        function pluralFilesOf(n) {
+            if (n > 0) return pluralFiles(n);
+            return "файлов";
         }
 
         function pluralFiles(n) {
@@ -1151,12 +1647,14 @@
         }
 
         function formatBytes(bytes) {
+            if (!bytes && bytes !== 0) return "—";
             if (bytes < 1024) return `${bytes} Б`;
             if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
             return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
         }
 
         function formatDateTime(iso) {
+            if (!iso) return "—";
             return new Date(iso).toLocaleString("ru-RU", {
                 day: "numeric",
                 month: "short",
@@ -1178,12 +1676,6 @@
             return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/></svg>';
         }
 
-        function kindFromMime(type) {
-            if (type.startsWith("image/")) return "image";
-            if (type.startsWith("video/")) return "video";
-            return "file";
-        }
-
         function updateMediaStats() {
             mediaCount.textContent = `${mediaItems.length} ${pluralFiles(mediaItems.length)}`;
             statMedia.textContent = mediaItems.length;
@@ -1191,9 +1683,8 @@
         }
 
         function thumbHtml(item) {
-            const url = mediaUrls.get(item.id);
-            if (url && item.kind === "image") return `<img src="${url}" alt="">`;
-            if (url && item.kind === "video") return `<video src="${url}" muted></video>`;
+            if (item.url && item.kind === "image") return `<img src="${esc(item.url)}" alt="" loading="lazy">`;
+            if (item.url && item.kind === "video") return `<video src="${esc(item.url)}" muted></video>`;
             return kindIcon(item.kind);
         }
 
@@ -1203,13 +1694,13 @@
             card.dataset.id = item.id;
             card.innerHTML = `
                 <div class="media-card__top">
-                    <button class="media-card__delete" aria-label="Удалить файл" data-delete-media="${item.id}">
+                    <button class="media-card__delete" aria-label="Удалить файл" data-delete-media="${esc(item.id)}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
                     </button>
                 </div>
-                <button type="button" class="media-card__body" data-open-media="${item.id}">
+                <button type="button" class="media-card__body" data-open-media="${esc(item.id)}">
                     <span class="media-card__thumb">${thumbHtml(item)}</span>
-                    <span class="media-card__name">${item.name}</span>
+                    <span class="media-card__name">${esc(item.name)}</span>
                     <span class="media-card__meta">${formatBytes(item.size)} · ${KIND_LABELS[item.kind]}</span>
                 </button>
             `;
@@ -1226,49 +1717,49 @@
             updateMediaStats();
         }
 
-        function addMediaFiles(files) {
-            Array.from(files).forEach((file) => {
-                const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                const item = {
-                    id,
-                    name: file.name,
-                    size: file.size,
-                    kind: kindFromMime(file.type),
-                    uploadedBy: CURRENT_USER_NAME || "Вы",
-                    uploadedAt: new Date().toISOString(),
-                };
-                mediaUrls.set(id, URL.createObjectURL(file));
-                mediaItems.push(item);
+        async function loadMedia() {
+            const data = await api("/api/media");
+            mediaItems = data.items || [];
+            renderMediaGrid();
+        }
 
-                const card = buildMediaCard(item);
-                mediaGrid.appendChild(card);
-                requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-entering")));
-            });
-            persistMedia();
-            updateMediaStats();
-            showToast(files.length === 1 ? "Файл загружен" : `Загружено файлов: ${files.length}`);
+        async function uploadMediaFiles(files) {
+            const fd = new FormData();
+            for (const file of Array.from(files)) fd.append("file", file);
+            try {
+                const data = await api("/api/media", { method: "POST", body: fd });
+                const n = (data.items || []).length;
+                await loadMedia();
+                showToast(n === 1 ? "Файл загружен" : `Загружено файлов: ${n}`);
+            } catch (err) {
+                showToast(err.message);
+            }
         }
 
         function removeMediaItem(id) {
-            const card = mediaGrid.querySelector(`[data-id="${id}"]`);
-            if (card) {
-                card.classList.add("is-leaving");
-                card.addEventListener("transitionend", () => card.remove(), { once: true });
-            }
-            const url = mediaUrls.get(id);
-            if (url) URL.revokeObjectURL(url);
-            mediaUrls.delete(id);
-            mediaItems = mediaItems.filter((m) => m.id !== id);
-            persistMedia();
-            updateMediaStats();
-            showToast("Файл удалён");
+            api(`/api/media/${id}`, { method: "DELETE" })
+                .then(() => {
+                    const card = mediaGrid.querySelector(`[data-id="${id}"]`);
+                    if (card) {
+                        card.classList.add("is-leaving");
+                        card.addEventListener("transitionend", () => card.remove(), { once: true });
+                    }
+                    mediaItems = mediaItems.filter((m) => m.id !== id);
+                    renderMediaGrid();
+                    if (openMediaId === id) closeMediaSheet();
+                    if (playlistSheetBackdrop.classList.contains("is-open") && openPlaylistId) {
+                        refreshPlaylist();
+                    }
+                    showToast("Файл удалён");
+                })
+                .catch((err) => showToast(err.message));
         }
 
         document.getElementById("uploadMediaBtn").addEventListener("click", () => mediaInput.click());
         document.getElementById("uploadMediaEmptyBtn").addEventListener("click", () => mediaInput.click());
 
         mediaInput.addEventListener("change", () => {
-            if (mediaInput.files.length) addMediaFiles(mediaInput.files);
+            if (mediaInput.files.length) uploadMediaFiles(mediaInput.files);
             mediaInput.value = "";
         });
 
@@ -1281,8 +1772,6 @@
             const openBtn = e.target.closest("[data-open-media]");
             if (openBtn) openMediaSheet(openBtn.dataset.openMedia);
         });
-
-        renderMediaGrid();
 
         // ---------------- media details popup ----------------
         const mediaSheetBackdrop = document.getElementById("mediaSheetBackdrop");
@@ -1300,16 +1789,15 @@
             if (!item) return;
             openMediaId = id;
 
-            const url = mediaUrls.get(id);
-            if (url && item.kind === "image") {
-                mediaPreview.innerHTML = `<img src="${url}" alt="">`;
-            } else if (url && item.kind === "video") {
-                mediaPreview.innerHTML = `<video src="${url}" controls></video>`;
+            if (item.url && item.kind === "image") {
+                mediaPreview.innerHTML = `<img src="${esc(item.url)}" alt="">`;
+            } else if (item.url && item.kind === "video") {
+                mediaPreview.innerHTML = `<video src="${esc(item.url)}" controls></video>`;
             } else {
                 mediaPreview.innerHTML = kindIcon(item.kind);
             }
 
-            mediaUploadedBy.textContent = item.uploadedBy;
+            mediaUploadedBy.textContent = CURRENT_USER_NAME || "Вы";
             mediaUploadedAt.textContent = formatDateTime(item.uploadedAt);
             mediaSize.textContent = formatBytes(item.size);
             mediaType.textContent = KIND_LABELS[item.kind];
@@ -1326,9 +1814,6 @@
         mediaSheetBackdrop.addEventListener("click", (e) => {
             if (e.target === mediaSheetBackdrop) closeMediaSheet();
         });
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape" && mediaSheetBackdrop.classList.contains("is-open")) closeMediaSheet();
-        });
 
         mediaDeleteBtn.addEventListener("click", () => {
             if (!openMediaId) return;
@@ -1336,6 +1821,215 @@
             removeMediaItem(openMediaId);
             closeMediaSheet();
         });
+
+        // ---------------- playlist sheet ----------------
+        const playlistSheetBackdrop = document.getElementById("playlistSheetBackdrop");
+        const playlistSheetClose = document.getElementById("playlistSheetClose");
+        const playlistRows = document.getElementById("playlistRows");
+        const playlistLibrary = document.getElementById("playlistLibrary");
+        const playlistSaveBtn = document.getElementById("playlistSave");
+
+        let openPlaylistId = null;
+        let playlistItems = [];
+
+        function closePlaylistSheet() {
+            playlistSheetBackdrop.classList.remove("is-open");
+            openPlaylistId = null;
+            playlistItems = [];
+        }
+
+        async function refreshPlaylist() {
+            const data = await api(`/api/screens/${openPlaylistId}/playlist`);
+            playlistItems = data.items || [];
+            renderPlaylist();
+            renderLibraryChips();
+        }
+
+        function buildPlaylistRow(item, index) {
+            const lib = mediaItems.find((m) => m.id === item.mediaId);
+            const thumb = lib
+                ? (lib.url ? `<img src="${esc(lib.url)}" alt="" loading="lazy">` : kindIcon(lib.kind))
+                : kindIcon(item.kind || "file");
+            const row = document.createElement("div");
+            row.className = "playlist-row";
+            row.innerHTML = `
+                <span class="playlist-row__thumb">${thumb}</span>
+                <span class="playlist-row__name">${esc(item.name || "Медиа")}</span>
+                <span class="playlist-row__duration">
+                    <input type="number" min="1" max="600" value="${item.duration || 8}" aria-label="Секунд показа" data-duration="${index}">
+                </span>
+                <button type="button" class="playlist-row__remove" aria-label="Убрать из плейлиста" data-remove-pl="${index}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 1 12a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-12"/></svg>
+                </button>`;
+            return row;
+        }
+
+        function renderPlaylist() {
+            playlistRows.innerHTML = "";
+            if (playlistItems.length === 0) {
+                playlistRows.innerHTML = '<p class="hint" style="margin:0">Плейлист пуст. Добавьте файлы из библиотеки ниже.</p>';
+                return;
+            }
+            playlistItems.forEach((item, i) => playlistRows.appendChild(buildPlaylistRow(item, i)));
+        }
+
+        function renderLibraryChips() {
+            playlistLibrary.innerHTML = "";
+            const inPlaylist = new Set(playlistItems.map((i) => i.mediaId));
+            mediaItems.forEach((item) => {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "chip";
+                chip.dataset.addPl = item.id;
+                chip.textContent = item.name;
+                if (inPlaylist.has(item.id)) {
+                    chip.disabled = true;
+                }
+                playlistLibrary.appendChild(chip);
+            });
+            if (mediaItems.length === 0) {
+                playlistLibrary.innerHTML = '<span class="hint" style="margin:0">Библиотека пуста. Загрузите медиа в разделе «Медиа».</span>';
+            }
+        }
+
+        playlistRows.addEventListener("click", (e) => {
+            const btn = e.target.closest("[data-remove-pl]");
+            if (!btn) return;
+            const idx = Number(btn.dataset.removePl);
+            playlistItems.splice(idx, 1);
+            renderPlaylist();
+            renderLibraryChips();
+        });
+
+        playlistRows.addEventListener("change", (e) => {
+            const input = e.target.closest("[data-duration]");
+            if (!input) return;
+            const idx = Number(input.dataset.duration);
+            const val = Math.max(1, Math.min(600, Number(input.value) || 8));
+            playlistItems[idx].duration = val;
+            input.value = val;
+        });
+
+        playlistLibrary.addEventListener("click", (e) => {
+            const chip = e.target.closest("[data-add-pl]");
+            if (!chip || chip.disabled) return;
+            const item = mediaItems.find((m) => m.id === chip.dataset.addPl);
+            if (!item) return;
+            playlistItems.push({ mediaId: item.id, name: item.name, kind: item.kind, duration: 8 });
+            renderPlaylist();
+            renderLibraryChips();
+        });
+
+        async function openPlaylistSheet(id) {
+            openPlaylistId = id;
+            const screen = screens.find((s) => s.screenId === id);
+            document.getElementById("playlistTitle").textContent = screen
+                ? `Плейлист: ${screen.name}`
+                : "Плейлист";
+            playlistSheetBackdrop.classList.add("is-open");
+            playlistSaveBtn.disabled = true;
+            try {
+                await refreshPlaylist();
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                playlistSaveBtn.disabled = false;
+            }
+        }
+
+        playlistSheetClose.addEventListener("click", closePlaylistSheet);
+        playlistSheetBackdrop.addEventListener("click", (e) => {
+            if (e.target === playlistSheetBackdrop) closePlaylistSheet();
+        });
+
+        playlistSaveBtn.addEventListener("click", async () => {
+            const payload = playlistItems.map((i) => ({ mediaId: i.mediaId, duration: i.duration }));
+            playlistSaveBtn.disabled = true;
+            try {
+                await api(`/api/screens/${openPlaylistId}/playlist`, {
+                    method: "POST",
+                    body: JSON.stringify({ items: payload }),
+                });
+                showToast("Плейлист сохранён");
+                closePlaylistSheet();
+                await loadScreens();
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                playlistSaveBtn.disabled = false;
+            }
+        });
+
+        // ---------------- org ----------------
+        const ORG_ROLE_LABELS = { owner: "Владелец", admin: "Администратор", member: "Участник" };
+
+        function roleBadge(role) {
+            const safe = ORG_ROLE_LABELS[role] ? role : "member";
+            return `<span class="role-badge role-badge--${safe}">${ORG_ROLE_LABELS[safe]}</span>`;
+        }
+
+        function initials(name) {
+            const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+            return (parts.map((w) => w[0]).slice(0, 2).join("") || "?").toUpperCase();
+        }
+
+        function formatJoined(iso) {
+            if (!iso) return "—";
+            return new Date(iso).toLocaleDateString("ru-RU", { day: "numeric", month: "short", year: "numeric" });
+        }
+
+        function renderOrg(data) {
+            const me = data.me || {};
+            const orgName = data.name || "Без названия";
+            document.getElementById("orgName").textContent = orgName;
+            document.getElementById("orgHeroName").textContent = orgName;
+            document.getElementById("orgHeroDesc").textContent = `Вы — ${ORG_ROLE_LABELS[me.role] || "Участник"}`;
+            document.getElementById("orgMark").textContent = initials(orgName);
+            document.getElementById("orgMyRole").innerHTML = roleBadge(me.role);
+            document.getElementById("orgStatMembers").textContent = data.stats.members;
+            document.getElementById("orgStatScreens").textContent = data.stats.screens;
+            document.getElementById("orgStatMedia").textContent = data.stats.media;
+            document.getElementById("orgMembersCount").textContent = data.stats.members;
+
+            const members = data.members || [];
+            const list = document.getElementById("orgMembers");
+            if (!members.length) {
+                list.innerHTML = '<div class="empty-state"><h3>Пока нет участников</h3><p>Приглашайте коллег с тем же названием организации</p></div>';
+            } else {
+                list.innerHTML = members.map((m) => `
+                    <div class="org-member">
+                        <span class="org-member__avatar">${esc(initials(m.fullName))}</span>
+                        <div class="org-member__info">
+                            <div class="org-member__name">${esc(m.fullName)}${m.isMe ? `<em>— вы</em>` : ""}</div>
+                            <div class="org-member__login">@${esc(m.username)}</div>
+                        </div>
+                        <div class="org-member__joined">${formatJoined(m.joinedAt)}</div>
+                        ${roleBadge(m.role)}
+                    </div>`).join("");
+            }
+        }
+
+        async function loadOrg() {
+            try {
+                const data = await api("/api/org");
+                renderOrg(data);
+                document.getElementById("orgError").classList.remove("is-visible");
+            } catch (err) {
+                const box = document.getElementById("orgError");
+                box.textContent = "Не удалось загрузить организацию. " + err.message;
+                box.classList.add("is-visible");
+            }
+        }
+
+        // ---------------- boot ----------------
+        loadScreens();
+        loadMedia().catch(() => showToast("Не удалось загрузить медиатеку"));
+        loadOrg();
+        setInterval(() => {
+            if (!document.hidden) {
+                loadScreens();
+            }
+        }, 30000);
     </script>
 </body>
 </html>

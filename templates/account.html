@@ -1,11 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <script>
+        (function () {
+            var theme = localStorage.getItem("wd_theme") || "light";
+            document.documentElement.setAttribute("data-theme", theme);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Winter.дисплей: Настройки аккаунта</title>
     <link rel="icon" href="/static/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0" rel="stylesheet">
     <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+            font-size: 20px;
+            line-height: 1;
+            vertical-align: middle;
+            user-select: none;
+        }
+
         :root {
             --bg: #f5f5f5;
             --ink: #111111;
@@ -14,6 +32,55 @@
             --radius-lg: 28px;
             --radius-md: 18px;
             --danger: #d33;
+            --panel: #ffffff;
+            --panel-glass: rgba(255, 255, 255, 0.82);
+            --panel-glass-border: rgba(255, 255, 255, 0.6);
+            --nav-glass: rgba(255, 255, 255, 0.75);
+            --blob-dark: #000000;
+            --blob-light: #ffffff;
+            --blob-light-glow: rgba(255, 255, 255, 0.9);
+            --shadow-soft: 0 20px 50px -30px rgba(0, 0, 0, 0.25);
+            --accent-bg: #000000;
+            --accent-ink: #ffffff;
+            --danger-bg: #fff0f0;
+            --danger-border: #f6cccc;
+            --danger-bg-hover: #ffe6e6;
+            --danger-glass-bg: rgba(255, 250, 250, 0.82);
+            --danger-glass-border: rgba(246, 204, 204, 0.8);
+            --status-online-bg: #eafbee;
+            --status-online-ink: #1a8a3c;
+            --status-offline-bg: #f0f0f0;
+            --hover-bg: #fafafa;
+            --focus-ring: #111111;
+            --focus-shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        :root[data-theme="dark"] {
+            --bg: #0b0d12;
+            --ink: #f2f3f5;
+            --ink-soft: #9aa0ab;
+            --line: #262a33;
+            --panel: #161920;
+            --panel-glass: rgba(22, 25, 32, 0.82);
+            --panel-glass-border: rgba(255, 255, 255, 0.08);
+            --nav-glass: rgba(22, 25, 32, 0.75);
+            --blob-dark: #1c2333;
+            --blob-light: #2f3b52;
+            --blob-light-glow: rgba(90, 110, 160, 0.35);
+            --shadow-soft: 0 20px 50px -30px rgba(0, 0, 0, 0.6);
+            --accent-bg: #ffffff;
+            --accent-ink: #0b0d12;
+            --danger-bg: rgba(255, 90, 90, 0.14);
+            --danger-border: rgba(255, 90, 90, 0.4);
+            --danger-bg-hover: rgba(255, 90, 90, 0.22);
+            --danger-glass-bg: rgba(45, 22, 24, 0.7);
+            --danger-glass-border: rgba(255, 90, 90, 0.35);
+            --status-online-bg: rgba(46, 160, 90, 0.18);
+            --status-online-ink: #4ade80;
+            --status-offline-bg: #262a33;
+            --hover-bg: #20242c;
+            --focus-ring: #f2f3f5;
+            --focus-shadow: rgba(255, 255, 255, 0.14);
         }
 
         * { box-sizing: border-box; }
@@ -24,8 +91,9 @@
             margin: 0;
             background: var(--bg);
             color: var(--ink);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
             position: relative;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .lava {
@@ -47,7 +115,7 @@
         .blob--dark {
             left: -14vmax;
             top: -10vmax;
-            background: #000000;
+            background: var(--blob-dark);
             opacity: 0.9;
             animation: drift-a 22s ease-in-out infinite;
         }
@@ -55,9 +123,9 @@
         .blob--light {
             right: -16vmax;
             bottom: -14vmax;
-            background: #ffffff;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 0 120px 40px rgba(255, 255, 255, 0.9);
+            background: var(--blob-light);
+            border: 1px solid var(--panel-glass-border);
+            box-shadow: 0 0 120px 40px var(--blob-light-glow);
             animation: drift-b 26s ease-in-out infinite;
         }
 
@@ -95,16 +163,16 @@
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.75);
+            background: var(--nav-glass);
             backdrop-filter: blur(16px) saturate(140%);
             -webkit-backdrop-filter: blur(16px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--panel-glass-border);
             color: var(--ink);
             text-decoration: none;
             transition: background 0.15s ease, border-color 0.15s ease;
         }
 
-        .nav-back:hover { background: var(--bg); border-color: #cfcfcf; }
+        .nav-back:hover { background: var(--bg); border-color: var(--line); }
         .nav-back svg { width: 18px; height: 18px; }
 
         .header {
@@ -122,8 +190,8 @@
             width: 68px;
             height: 68px;
             border-radius: 50%;
-            background: #000000;
-            color: #ffffff;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -141,8 +209,8 @@
             width: 26px;
             height: 26px;
             border-radius: 50%;
-            background: #000000;
-            color: #ffffff;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -158,14 +226,14 @@
         .header p { margin: 0; font-size: 13px; color: var(--ink-soft); }
 
         .card {
-            background: rgba(255, 255, 255, 0.82);
+            background: var(--panel-glass);
             backdrop-filter: blur(20px) saturate(140%);
             -webkit-backdrop-filter: blur(20px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--panel-glass-border);
             border-radius: var(--radius-lg);
             padding: 22px;
             margin-bottom: 16px;
-            box-shadow: 0 20px 50px -30px rgba(0, 0, 0, 0.25);
+            box-shadow: var(--shadow-soft);
         }
 
         .card h2 {
@@ -203,9 +271,45 @@
             border-radius: 999px;
         }
 
-        .status--online { background: #eafbee; color: #1a8a3c; }
-        .status--offline { background: #f0f0f0; color: var(--ink-soft); }
+        .status--online { background: var(--status-online-bg); color: var(--status-online-ink); }
+        .status--offline { background: var(--status-offline-bg); color: var(--ink-soft); }
         .status__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .segment {
+            display: flex;
+            gap: 4px;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-md);
+            padding: 4px;
+        }
+
+        .segment__btn {
+            appearance: none;
+            flex: 1;
+            border: none;
+            background: transparent;
+            border-radius: calc(var(--radius-md) - 4px);
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--ink-soft);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .segment__btn .material-symbols-outlined { font-size: 17px; }
+
+        .segment__btn.is-active {
+            background: var(--panel);
+            color: var(--ink);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
 
         .yandex-row {
             display: flex;
@@ -222,7 +326,7 @@
         .field input {
             appearance: none;
             border: 1px solid var(--line);
-            background: #ffffff;
+            background: var(--panel);
             border-radius: var(--radius-md);
             padding: 12px 16px;
             font-size: 15px;
@@ -233,8 +337,8 @@
         }
 
         .field input:focus-visible {
-            border-color: #000;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px var(--focus-shadow);
         }
 
         .btn {
@@ -254,18 +358,18 @@
         }
 
         .btn:active { transform: scale(0.97); }
-        .btn:focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+        .btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 3px; }
 
-        .btn--primary { background: #000000; color: #ffffff; width: 100%; }
+        .btn--primary { background: var(--accent-bg); color: var(--accent-ink); width: 100%; }
         .btn--primary:hover { opacity: 0.88; }
 
-        .btn--ghost { background: #ffffff; color: var(--ink); border: 1px solid var(--line); }
-        .btn--ghost:hover { background: #fafafa; border-color: #cfcfcf; }
+        .btn--ghost { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+        .btn--ghost:hover { background: var(--hover-bg); border-color: var(--line); }
 
-        .btn--danger { background: #fff0f0; color: var(--danger); border: 1px solid #f6cccc; width: 100%; }
-        .btn--danger:hover { background: #ffe6e6; }
+        .btn--danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); width: 100%; }
+        .btn--danger:hover { background: var(--danger-bg-hover); }
 
-        .card--danger { border-color: rgba(246, 204, 204, 0.8); background: rgba(255, 250, 250, 0.82); }
+        .card--danger { border-color: var(--danger-glass-border); background: var(--danger-glass-bg); }
         .card--danger p { color: var(--ink-soft); font-size: 13px; margin: 0 0 14px; }
 
         .toast-host {
@@ -281,8 +385,8 @@
         }
 
         .toast {
-            background: #111111;
-            color: #ffffff;
+            background: var(--accent-bg);
+            color: var(--accent-ink);
             padding: 10px 18px;
             border-radius: 999px;
             font-size: 13px;
@@ -346,6 +450,23 @@
 
         <div class="card">
             <h2>
+                <span class="material-symbols-outlined">dark_mode</span>
+                Тема оформления
+            </h2>
+            <div class="segment" role="tablist" aria-label="Тема оформления">
+                <button type="button" class="segment__btn" data-theme-btn="light" aria-selected="false">
+                    <span class="material-symbols-outlined">light_mode</span>
+                    Светлая
+                </button>
+                <button type="button" class="segment__btn" data-theme-btn="dark" aria-selected="false">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    Тёмная
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9c0-1.5 1.2-2.5 3-2.5s3 1 3 2.3c0 1.4-1 1.9-2.2 2.6-1 .6-1.3 1.1-1.3 2.1M12 17.2v.1"/></svg>
                 Вход через Yandex ID
             </h2>
@@ -383,6 +504,24 @@
     <div class="toast-host" id="toastHost" aria-live="polite"></div>
 
     <script>
+        const themeBtns = document.querySelectorAll("[data-theme-btn]");
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            localStorage.setItem("wd_theme", theme);
+            themeBtns.forEach((btn) => {
+                const active = btn.dataset.themeBtn === theme;
+                btn.classList.toggle("is-active", active);
+                btn.setAttribute("aria-selected", active ? "true" : "false");
+            });
+        }
+
+        themeBtns.forEach((btn) => {
+            btn.addEventListener("click", () => applyTheme(btn.dataset.themeBtn));
+        });
+
+        applyTheme(localStorage.getItem("wd_theme") || "light");
+
         const toastHost = document.getElementById("toastHost");
 
         function showToast(text) {

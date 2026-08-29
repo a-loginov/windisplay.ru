@@ -2,10 +2,10 @@ import os
 import secrets
 import requests
 from flask_bcrypt import Bcrypt
-from app import app
+from main import app
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_login import login_required, current_user, login_user, logout_user
-from db_manager import db, User
+from db_manager import db, User, OrgInvite
 
 
 
@@ -82,7 +82,13 @@ def create_teacher_profile():
                 invite_password=invite_password,
             )
 
-        user = User(username=username, full_name=full_name, company=company)
+        is_owner = User.query.filter_by(company=company).first() is None
+        user = User(
+            username=username,
+            full_name=full_name,
+            company=company,
+            role='owner' if is_owner else 'member'
+        )
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

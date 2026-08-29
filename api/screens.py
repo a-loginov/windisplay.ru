@@ -4,11 +4,13 @@ from flask import jsonify, request
 from flask_login import login_required, current_user
 
 from app import app
-from db_manager import db, Device, MediaAsset, PlaylistItem, now, make_device_token
+from db_manager import db, Device, MediaAsset, PlaylistItem, now, new_id, make_device_token
 from api.tv import ONLINE_TIMEOUT_SECONDS
 
 
 def _state(device):
+    if device.is_virtual:
+        return "virtual"
     if not device.paired:
         return "pending"
     if device.last_seen_at and (now() - device.last_seen_at).total_seconds() < ONLINE_TIMEOUT_SECONDS:
@@ -22,6 +24,7 @@ def _serialize(device):
         "screenId": device.id,
         "name": device.name,
         "location": device.location,
+        "virtual": bool(device.is_virtual),
         "state": _state(device),
         "createdAt": device.created_at.isoformat() + "Z" if device.created_at else None,
         "pairedAt": device.paired_at.isoformat() + "Z" if device.paired_at else None,
@@ -44,9 +47,27 @@ def screens_create():
     name = (data.get("name") or "").strip()
     location = (data.get("location") or "").strip()
     code = (data.get("code") or "").strip().upper()
+    mode = (data.get("mode") or "").strip()
 
     if not name or not location:
         return jsonify({"error": "fields_required"}), 400
+
+    if mode == "virtual":
+        candidate = Device(
+            id=new_id(),
+            owner_id=current_user.id,
+            name=name,
+            location=location,
+            is_virtual=True,
+            paired_at=now(),
+            created_at=now(),
+        )
+        db.session.add(candidate)
+        db.session.commit()
+        payload = _serialize(candidate)
+        payload["paired"] = True
+        return jsonify(payload), 201
+
     if not code:
         return jsonify({"error": "code_required", "message": "Введите код с экрана устройства"}), 400
 
@@ -83,6 +104,33 @@ def screens_delete(screen_id):
     db.session.delete(device)
     db.session.commit()
     return jsonify({"ok": True})
+
+
+@app.route("/api/screens/<screen_id>/playlist", methods=["GET"])
+@login_required
+def screens_playlist_get(screen_id):
+    device = db.session.get(Device, screen_id)
+    if device is None or device.owner_id != current_user.id:
+        return jsonify({"error": "not_found"}), 404
+
+    rows = (
+        PlaylistItem.query
+        .filter_by(device_id=device.id)
+        .order_by(PlaylistItem.position)
+        .all()
+    )
+    items = []
+    for row in rows:
+        media = db.session.get(MediaAsset, row.media_id)
+        if media is None:
+            continue
+        items.append({
+            "mediaId": media.id,
+            "name": media.name,
+            "kind": media.kind,
+            "duration": row.duration,
+        })
+    return jsonify({"items": items})
 
 
 @app.route("/api/screens/<screen_id>/playlist", methods=["POST"])
