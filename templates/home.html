@@ -2013,6 +2013,7 @@
             document.getElementById("orgStatScreens").textContent = data.stats.screens;
             document.getElementById("orgStatMedia").textContent = data.stats.media;
             document.getElementById("orgMembersCount").textContent = data.stats.members;
+            document.getElementById("orgInviteBtn").classList.toggle("is-hidden", !(me.role === "owner" || me.role === "admin"));
 
             const members = data.members || [];
             const list = document.getElementById("orgMembers");
@@ -2043,6 +2044,49 @@
                 box.classList.add("is-visible");
             }
         }
+
+        // ---------------- org invite ----------------
+        const inviteSheetBackdrop = document.getElementById("inviteSheetBackdrop");
+        const inviteSheetClose = document.getElementById("inviteSheetClose");
+        const inviteLinkInput = document.getElementById("inviteLinkInput");
+        const inviteCopyBtn = document.getElementById("inviteCopyBtn");
+        const orgInviteBtn = document.getElementById("orgInviteBtn");
+
+        function closeInviteSheet() {
+            inviteSheetBackdrop.classList.remove("is-open");
+        }
+
+        orgInviteBtn.addEventListener("click", async () => {
+            orgInviteBtn.disabled = true;
+            try {
+                const data = await api("/api/org/invite", { method: "POST" });
+                document.getElementById("inviteOrgName").textContent = document.getElementById("orgName").textContent;
+                inviteLinkInput.value = data.url;
+                inviteSheetBackdrop.classList.add("is-open");
+            } catch (err) {
+                showToast(err.message);
+            } finally {
+                orgInviteBtn.disabled = false;
+            }
+        });
+
+        inviteCopyBtn.addEventListener("click", async () => {
+            inviteLinkInput.select();
+            try {
+                await navigator.clipboard.writeText(inviteLinkInput.value);
+                showToast("Ссылка скопирована");
+            } catch {
+                showToast("Скопируйте ссылку вручную (Ctrl/⌘+C)");
+            }
+        });
+
+        inviteSheetClose.addEventListener("click", closeInviteSheet);
+        inviteSheetBackdrop.addEventListener("click", (e) => {
+            if (e.target === inviteSheetBackdrop) closeInviteSheet();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && inviteSheetBackdrop.classList.contains("is-open")) closeInviteSheet();
+        });
 
         // ---------------- boot ----------------
         loadScreens();
