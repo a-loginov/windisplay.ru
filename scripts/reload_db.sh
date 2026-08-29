@@ -14,9 +14,12 @@
 #   3. Печатает итог и при необходимости перезапускает сервис
 #
 # Флаги:
-#   --no-install    не обновлять pip-зависимости
-#   --no-restart    не перезапускать сервис windisplay
-#   --restart       перезапустить сервис windisplay (по умолчанию выключен)
+#   --no-install          не обновлять pip-зависимости
+#   --no-restart          не перезапускать сервис windisplay
+#   --restart             перезапустить сервис windisplay (по умолчанию выключен)
+#   --env <path>          путь к файлу .env (по умолчанию $APP_DIR/.env)
+#   --env-file <path>     то же самое, что --env
+#   --app-dir <path>      корень проекта с venv и кодом (по умолчанию рядом со скриптом)
 
 set -euo pipefail
 
@@ -26,15 +29,39 @@ APP_SERVICE="windisplay"
 
 DO_INSTALL=1
 DO_RESTART=0
+ENV_FILE=""
 
-for arg in "$@"; do
-    case "$arg" in
-        --no-install) DO_INSTALL=0 ;;
-        --restart)    DO_RESTART=1 ;;
-        --no-restart) DO_RESTART=0 ;;
-        *) echo "Неизвестный флаг: $arg"; exit 1 ;;
-    esac
-done
+parse_args() {
+    local prev=""
+    for arg in "$@"; do
+        if [[ "$prev" == "--env" || "$prev" == "--env-file" ]]; then
+            ENV_FILE="$arg"
+            prev=""
+            continue
+        fi
+        if [[ "$prev" == "--app-dir" ]]; then
+            APP_DIR="$arg"
+            prev=""
+            continue
+        fi
+        case "$arg" in
+            --no-install) DO_INSTALL=0 ;;
+            --restart)    DO_RESTART=1 ;;
+            --no-restart) DO_RESTART=0 ;;
+            --env|--env-file|--app-dir) prev="${arg}" ;;
+            *) echo "Неизвестный флаг: $arg"; exit 1 ;;
+        esac
+    done
+    if [[ -n "$prev" ]]; then
+        echo "Ошибка: флагу $prev нужно значение"; exit 1
+    fi
+}
+parse_args "$@"
+
+# Если --env не задан — берём рядом с проектом
+if [[ -z "$ENV_FILE" ]]; then
+    ENV_FILE="$APP_DIR/.env"
+fi
 
 log() { echo -e "\033[1;32m[reload_db]\033[0m $*"; }
 die() { echo -e "\033[1;31m[error]\033[0m $*" >&2; exit 1; }
@@ -47,27 +74,33 @@ need_root() {
 
 main() {
     need_root
-    cd "$APP_DIR"
 
-    if [[ ! -f .env ]]; then
-        die "Файл .env не найден в $APP_DIR"
+    if [[ ! -f "$ENV_FILE" ]]; then
+        die "Файл .env не найден: $ENV_FILE. Укажите путь через --env <path>"
     fi
 
     # Применяем переменные из .env (для DATABASE_URL/Postgres)
     set -a
     # shellcheck disable=SC1091
-    source .env
+    source "$ENV_FILE"
     set +a
 
-    if [[ "$DO_INSTALL" -eq 1 && -x venv/bin/pip ]]; then
+    if [[ "$DO_INSTALL" -eq 1 && -x "$APP_DIR/venv/bin/pip" ]]; then
         log "Обновляю зависимости Python ..."
-        venv/bin/pip install -r requirements.txt
+        "$APP_DIR/venv/bin/pip" install -r "$APP_DIR/requirements.txt"
+    fi
+
+    if [[ ! -x "$APP_DIR/venv/bin/python" ]]; then
+        die "venv не найден в $APP_DIR/venv"
     fi
 
     log "Запускаю миграцию базы данных ..."
-    venv/bin/python - <<'EOF'
+    APP_DIR="$APP_DIR" "$APP_DIR/venv/bin/python" - <<'EOF'
+import os
 import sys
-sys.path.insert(0, "/opt/windisplay")
+
+app_dir = os.environ["APP_DIR"]
+sys.path.insert(0, app_dir)
 
 import sqlalchemy as sa
 from sqlalchemy import inspect, text
