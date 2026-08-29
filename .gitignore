@@ -8,3 +8,5 @@ node_modules
 templates/electron/dist
 .playwright-mcp
 __pycache__
+DOCK.md
+.ulpi/design
