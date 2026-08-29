@@ -29,7 +29,7 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 # Yandex ID #
 ClientID=os.environ["ClientID"]
-Client_secret=os.environ["Client secret"]
+Client_secret=os.environ["Client_secret"]
 
 
 
