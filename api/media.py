@@ -5,7 +5,6 @@ from flask import jsonify, request, url_for
 from flask_login import login_required, current_user
 
 from app import app
-from api.s3 import s3_key, s3_upload, s3_delete
 from db_manager import db, MediaAsset, PlaylistItem, new_id, now
 
 KIND_BY_EXT = {
@@ -58,7 +57,6 @@ def media_upload():
             return jsonify({"error": "empty_file"}), 400
 
         filename = f"{uuid4().hex}.{ext}"
-        s3_upload(data, s3_key(filename), content_type=f.mimetype)
 
         media = MediaAsset(
             id=new_id(),
@@ -68,6 +66,7 @@ def media_upload():
             mime=f.mimetype,
             size=len(data),
             filename=filename,
+            data=data,
             uploaded_at=now(),
         )
         db.session.add(media)
@@ -85,7 +84,6 @@ def media_delete(media_id):
         return jsonify({"error": "not_found"}), 404
 
     PlaylistItem.query.filter_by(media_id=media.id).delete()
-    s3_delete(s3_key(media.filename))
     db.session.delete(media)
     db.session.commit()
     return jsonify({"ok": True})

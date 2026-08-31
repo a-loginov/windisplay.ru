@@ -7,7 +7,6 @@ from flask import jsonify, request, send_file, url_for
 
 from app import app
 from db_manager import db, Device, PlaylistItem, MediaAsset, new_id, make_pair_code, make_device_token, now
-from api.s3 import s3_key, s3_download
 
 
 CODE_TTL_MINUTES = 5
@@ -110,15 +109,15 @@ def device_heartbeat():
 
 
 # ------------------------------ Media stream ------------------------------ #
-# Файлы лежат по unguessable-имени (uuid.ext): ссылка действует как «ключ».
+# Файлы лежат в БД по unguessable-имени (uuid.ext): ссылка действует как «ключ».
 # Это осознанное упрощение Фазы 1: плеер скачивает media без заголовка Authorization.
 
 
 @app.route("/media/<path:filename>")
 def media_stream(filename):
     name = os.path.basename(filename)
-    data = s3_download(s3_key(name))
-    if data is None:
+    media = MediaAsset.query.filter_by(filename=name).first()
+    if media is None or media.data is None:
         return jsonify({"error": "not_found"}), 404
     mime = mimetypes.guess_type(name)[0] or "application/octet-stream"
-    return send_file(BytesIO(data), mimetype=mime, conditional=True, max_age=0)
+    return send_file(BytesIO(media.data), mimetype=mime, conditional=True, max_age=0)

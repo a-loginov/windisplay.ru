@@ -166,8 +166,10 @@ class MediaAsset(db.Model):
     kind = db.Column(db.String(16), nullable=False)  # image | video | file
     mime = db.Column(db.String(80))
     size = db.Column(db.Integer, default=0)
-    # имя файла на диске, например "ab12cd34ef.mp4"; unguessable = uid
+    # имя файла, например "ab12cd34ef.mp4"; unguessable = uid
     filename = db.Column(db.String(128))
+    # бинарные данные файла, хранятся прямо в БД
+    data = deferred(db.Column(db.LargeBinary))
     uploaded_at = db.Column(db.DateTime, default=now, nullable=False)
 
 
