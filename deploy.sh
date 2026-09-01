@@ -30,7 +30,7 @@ VENV_DIR="${APP_DIR}/venv"
 APP_PORT=9019
 
 # Ветка, которую тянем
-GIT_BRANCH="master"
+GIT_BRANCH="main"
 # Ремоторий
 GIT_REPO="https://github.com/a-loginov/windisplay.ru.git"
 
